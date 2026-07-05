@@ -257,6 +257,14 @@
     .buoy-green { background: #27ae60; }
     .buoy-white { background: #ecf0f1; }
     .buoy-yellow { background: #f1c40f; }
+    .hazard-marker {
+      width: 0;
+      height: 0;
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+      border-bottom: 16px solid #c0392b;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
+    }
     .launch-icon {
       width: 28px;
       height: 28px;
@@ -298,7 +306,7 @@
     <button id="startBtn">Start GPS</button>
   </div>
 
-  <div id="buoyBanner" class="hud">📍 Tap the map to place a buoy</div>
+  <div id="buoyBanner" class="hud">📍 Tap the map to place a buoy or hazard</div>
 
   <div id="layers" class="hud">
     <label class="layer-toggle"><input type="checkbox" id="layerBuoys" /> Buoys</label>
@@ -360,19 +368,9 @@
       { name: "Meredith Neck", shape: [[43.6100,-71.2600],[43.6200,-71.2550],[43.6250,-71.2620],[43.6180,-71.2700],[43.6080,-71.2680],[43.6100,-71.2600]] },
     ];
 
-    // ----- Named hazards / rocky shoals (informational) -----
-    // Coordinates from Bizer chart + cross-checked against OSM lake shoreline.
-    // These are not authoritative — NH Marine Patrol buoys are. 2026-07-05.
-    const HAZARDS = [
-      // The Broads — wide shallow section in the center of the lake,
-      // roughly between Long Island and the central channels.
-      { name: "The Broads", lat: 43.6680, lng: -71.3300, note: "Wide shallow section in central lake — mind the depth." },
-      // Rocky Shoal — submerged rocks near Meredith, south of Bear Island channel
-      { name: "Rocky Shoal (Meredith)", lat: 43.6590, lng: -71.4310, note: "Submerged rocks — buoys mark them." },
-      // Five-Finger Point — rocky peninsula on southwest shore of Alton Bay,
-      // near where Mt Major Road meets the lake.
-      { name: "Five-Finger Point", lat: 43.4910, lng: -71.2620, note: "Rocks extend out from point on Alton Bay SW shore." },
-    ];
+    // ----- Hazards (crowdsourced) -----
+    // Removed 2026-07-05: static HAZARDS array had wrong coords. Now
+    // crowdsourced — users add hazards the same way they add buoys.
 
     // ----- Public boat launches -----
     // Coordinates sourced from Google Maps place pins (Roche Realty launch
@@ -439,6 +437,7 @@
     };
 
     const storedBuoys = JSON.parse(localStorage.getItem('winniBuoys') || '[]');
+    const storedHazards = JSON.parse(localStorage.getItem('winniHazards') || '[]');
 
     // ----- Map setup -----
     function initMap() {
@@ -473,16 +472,7 @@
       });
 
       layers.hazards = L.layerGroup();
-      HAZARDS.forEach(h => {
-        L.marker([h.lat, h.lng], {
-          icon: L.divIcon({
-            className: '',
-            html: '<div class="buoy-marker buoy-yellow"></div>',
-            iconSize: [14, 14],
-            iconAnchor: [7, 7],
-          })
-        }).addTo(layers.hazards).bindPopup(`<strong>${h.name}</strong><br>${h.note}`);
-      });
+      storedHazards.forEach(h => addHazardToLayer(h));
       layers.hazards.addTo(map);
 
       layers.launches = L.layerGroup();
@@ -514,6 +504,61 @@
       white:  { label: 'White/spar',         color: 'white',  note: 'Information or hazard marker.' },
       yellow: { label: 'Yellow hazard',      color: 'yellow', note: 'Caution — rock, shoal, or obstruction.' },
     };
+
+    // ----- Hazard CRUD -----
+    const HAZARD_TYPES = {
+      rock:      { label: 'Rock / shoal',     color: '#c0392b' },
+      submerged: { label: 'Submerged hazard', color: '#8b0000' },
+      shallow:   { label: 'Shallow area',     color: '#d68910' },
+      current:   { label: 'Strong current',   color: '#2874a6' },
+      other:     { label: 'Other hazard',     color: '#7d3c98' },
+    };
+
+    function hazardIcon(type) {
+      const color = (HAZARD_TYPES[type] || HAZARD_TYPES.other).color;
+      return L.divIcon({
+        className: '',
+        html: `<div class="hazard-marker" style="background:${color};"></div>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+      });
+    }
+
+    function addHazardToLayer(h) {
+      const type = h.type || 'other';
+      L.marker([h.lat, h.lng], { icon: hazardIcon(type) })
+        .addTo(layers.hazards)
+        .bindPopup(
+          `<strong>${HAZARD_TYPES[type].label}</strong><br>` +
+          (h.note ? h.note + '<br>' : '') +
+          `<small>Added ${new Date(h.added).toLocaleDateString()}</small><br>` +
+          `<a href="#" onclick="deleteHazard('${h.id}'); return false;">Delete</a>`
+        );
+    }
+
+    function saveHazards() {
+      localStorage.setItem('winniHazards', JSON.stringify(storedHazards));
+    }
+
+    function addHazard(hazard) {
+      storedHazards.push(hazard);
+      addHazardToLayer(hazard);
+      saveHazards();
+    }
+
+    window.deleteHazard = function(id) {
+      const idx = storedHazards.findIndex(h => h.id === id);
+      if (idx === -1) return;
+      storedHazards.splice(idx, 1);
+      saveHazards();
+      rebuildHazardLayer();
+      map.closePopup();
+    };
+
+    function rebuildHazardLayer() {
+      layers.hazards.clearLayers();
+      storedHazards.forEach(h => addHazardToLayer(h));
+    }
 
     function addBuoyToLayer(b) {
       const icon = L.divIcon({
@@ -559,10 +604,29 @@
     function onMapClick(e) {
       if (!buoyAddMode) return;
       pendingBuoyLatLng = e.latlng;
-      showBuoyModal(e.latlng);
+      showAddChoiceModal(e.latlng);
     }
 
-    function showBuoyModal(latlng) {
+    function showAddChoiceModal(latlng) {
+      const modal = document.getElementById('modal');
+      const body = document.getElementById('modalBody');
+      const actions = document.getElementById('modalActions');
+      const title = document.getElementById('modalTitle');
+
+      title.textContent = 'Add to map';
+      body.innerHTML = `
+        <p style="margin: 0 0 12px;">At <strong>${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</strong></p>
+        <p style="margin: 0 0 8px;">What are you adding?</p>
+      `;
+      actions.innerHTML = `
+        <button class="btn btn-secondary" onclick="cancelModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="showBuoyModal()">⚪ Buoy</button>
+        <button class="btn btn-danger" onclick="showHazardModal()">🔺 Hazard</button>
+      `;
+      modal.classList.add('show');
+    }
+
+    function showBuoyModal() {
       const modal = document.getElementById('modal');
       const body = document.getElementById('modalBody');
       const actions = document.getElementById('modalActions');
@@ -570,7 +634,7 @@
 
       title.textContent = 'Add a buoy';
       body.innerHTML = `
-        <p style="margin: 0 0 12px;">At <strong>${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</strong></p>
+        <p style="margin: 0 0 12px;">At <strong>${pendingBuoyLatLng.lat.toFixed(5)}, ${pendingBuoyLatLng.lng.toFixed(5)}</strong></p>
         <label>Type</label>
         <select id="buoyType">
           ${Object.entries(BUOY_TYPES).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')}
@@ -579,10 +643,33 @@
         <input type="text" id="buoyNote" placeholder="e.g. marks ledge, white stripe, unlit" />
       `;
       actions.innerHTML = `
+        <button class="btn btn-secondary" onclick="showAddChoiceModal(pendingBuoyLatLng)">Back</button>
         <button class="btn btn-secondary" onclick="cancelModal()">Cancel</button>
         <button class="btn btn-primary" onclick="confirmBuoy()">Save</button>
       `;
-      modal.classList.add('show');
+    }
+
+    function showHazardModal() {
+      const modal = document.getElementById('modal');
+      const body = document.getElementById('modalBody');
+      const actions = document.getElementById('modalActions');
+      const title = document.getElementById('modalTitle');
+
+      title.textContent = 'Add a hazard';
+      body.innerHTML = `
+        <p style="margin: 0 0 12px;">At <strong>${pendingBuoyLatLng.lat.toFixed(5)}, ${pendingBuoyLatLng.lng.toFixed(5)}</strong></p>
+        <label>Hazard type</label>
+        <select id="hazardType">
+          ${Object.entries(HAZARD_TYPES).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')}
+        </select>
+        <label style="display:block; margin-top: 12px;">Note (optional)</label>
+        <input type="text" id="hazardNote" placeholder="e.g. visible at half-tide, marked with private buoy" />
+      `;
+      actions.innerHTML = `
+        <button class="btn btn-secondary" onclick="showAddChoiceModal(pendingBuoyLatLng)">Back</button>
+        <button class="btn btn-secondary" onclick="cancelModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmHazard()">Save</button>
+      `;
     }
 
     window.cancelModal = function() {
@@ -602,6 +689,25 @@
         added: new Date().toISOString(),
       };
       addBuoy(buoy);
+      cancelModal();
+      exitBuoyMode();
+    };
+
+    window.confirmHazard = function() {
+      const type = document.getElementById('hazardType').value;
+      const note = document.getElementById('hazardNote').value.trim();
+      const hazard = {
+        id: 'h' + Date.now() + Math.random().toString(36).slice(2, 7),
+        lat: pendingBuoyLatLng.lat,
+        lng: pendingBuoyLatLng.lng,
+        type,
+        note,
+        added: new Date().toISOString(),
+      };
+      addHazard(hazard);
+      // Make sure hazards layer is on so user sees their addition
+      document.getElementById('layerHazards').checked = true;
+      layers.hazards.addTo(map);
       cancelModal();
       exitBuoyMode();
     };
@@ -782,11 +888,12 @@
       });
 
       document.getElementById('exportBtn').addEventListener('click', () => {
-        const blob = new Blob([JSON.stringify(storedBuoys, null, 2)], { type: 'application/json' });
+        const payload = { buoys: storedBuoys, hazards: storedHazards };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `winni-buoys-${new Date().toISOString().slice(0,10)}.json`;
+        a.download = `winni-buoys-and-hazards-${new Date().toISOString().slice(0,10)}.json`;
         a.click();
         URL.revokeObjectURL(url);
       });
@@ -801,13 +908,14 @@
           <p><strong>Recreation aid — not for primary navigation.</strong></p>
           <p>Always defer to official charts, visual markers, NH Marine Patrol buoys, and the Bizer chart.</p>
           <p style="font-size:12px;color:#666;">
-            Layers: buoys (community-contributed), public launches, no-wake zones (approximate), named hazards.<br>
-            Data sources: Roche Realty launch list, NH Marine Patrol zones (estimated), OpenStreetMap base map.<br>
-            Buoys: maintained by NH Marine Patrol; this app shows only buoys you add yourself. Tap 📍 then tap the map to place one.
+            Layers: buoys (community-contributed), hazards (community-contributed), public launches.<br>
+            Data sources: Roche Realty launch list, OpenStreetMap base map.<br>
+            Tap 📍 then tap the map to add a buoy or hazard — pick which in the popup.
           </p>
           <p style="font-size:12px;color:#666;">
             <strong>Buoys saved locally:</strong> ${storedBuoys.length}<br>
-            Use 💾 to export your buoys as a JSON file.
+            <strong>Hazards saved locally:</strong> ${storedHazards.length}<br>
+            Use 💾 to export your data as a JSON file.
           </p>
         `;
         actions.innerHTML = `<button class="btn btn-primary" onclick="cancelModal()">Close</button>`;

@@ -7,14 +7,13 @@ A lightweight, no-backend web app for navigating Lake Winnipesaukee from your ph
 - **Live GPS dot** for your boat (phone GPS, ~3 m accuracy)
 - **Speed** in knots + **heading** in degrees + **compass rose**
 - **Public boat launches** — all 18+ NH launches with fees, parking notes, and restrictions
-- **No-wake zones** — translucent overlays for Meredith Bay, Weirs Beach, Alton Bay, Wolfeboro Bay
-- **Named hazards** — The Broads, Rocky Shoal, Five-Finger Point (informational only)
 - **Crowdsourced buoys** — tap a button, tap the map, log any buoy you see while boating. Saves to your phone's localStorage. Export as JSON anytime.
+- **Crowdsourced hazards** — rocks, shoals, shallow areas, strong currents. Same workflow as buoys: tap 📍 → tap map → pick "Hazard". Red triangle on the map.
 
 ## What it does NOT do (yet)
 
 - **No official buoy data.** USCG ATON dataset is coastal-only — inland lake buoys on Winnipesaukee are maintained by NH Marine Patrol (~600 of them) and not published in machine-readable form. The printed **Bizer chart** sold at marinas is the authoritative source. Buoy layer is user-contributed; populate it by boating and tapping.
-- **No no-wake zones.** Earlier versions included 50 zones from NH Admin Rules Saf-C 5102.96, but the polygon coordinates relied on memory-based island positions and were inaccurate. Removed 2026-07-05. When you see a no-wake buoy on the water, slow down — those are authoritative. (For future: a community-contributed no-wake layer would work the same way as the buoy layer.)
+- **No named hazards.** Earlier versions had hardcoded hazard points (The Broads, Rocky Shoal, Five-Finger Point), but the coordinates were not authoritative and several were in the wrong place. Removed 2026-07-05 — hazards are now crowdsourced the same way as buoys. When you see a hazard on the water, add it.
 - **Not a navigation system.** Recreation aid. Always defer to official charts and visual markers.
 
 ## Files
@@ -53,19 +52,20 @@ python3 -m http.server 8765
 # open http://localhost:8765 in Chrome
 ```
 
-## Crowdsourcing the buoys
+## Crowdsourcing the buoys and hazards
 
-Since official buoy data isn't freely available, the buoy layer is built by **you and your crew** while boating:
+Since official data isn't freely available, the buoy and hazard layers are built by **you and your crew** while boating:
 
-1. Open the app, tap **📍** (bottom-right) to enter buoy-add mode
-2. Tap anywhere on the map where you see a buoy
-3. Pick its color/type (red nun, green can, white/spar, yellow hazard)
-4. Add an optional note (e.g. "marks submerged rock, white stripe")
-5. Tap **Save**
+1. Open the app, tap **📍** (bottom-right) to enter add mode
+2. Tap anywhere on the map where you see a buoy or hazard
+3. Pick **Buoy** or **Hazard**
+4. Pick its type/color (red nun / green can / white / yellow for buoys; rock / submerged / shallow / current / other for hazards)
+5. Add an optional note (e.g. "marks submerged rock, white stripe")
+6. Tap **Save**
 
-Buoys are stored in your phone's `localStorage`. They persist across sessions on the same device/browser.
+Buoys are circles, hazards are red triangles. Both are stored in your phone's `localStorage` and persist across sessions on the same device/browser.
 
-**Export** — tap 💾 to download your buoys as a JSON file. Share it with friends. I can merge multiple JSON files into a community dataset if this gets traction.
+**Export** — tap 💾 to download your buoys and hazards as a JSON file. Share it with friends. I can merge multiple JSON files into a community dataset if this gets traction.
 
 ## How it works (technical)
 
@@ -79,9 +79,8 @@ Buoys are stored in your phone's `localStorage`. They persist across sessions on
 ## Data sources
 
 - **Public launches:** [Roche Realty Lake Winnipesaukee launch list](https://rocherealty.com/boat-launches/), cross-checked with [lakewinnipesaukee.net](http://lakewinnipesaukee.net/boating/boat-launches-lakes-region-nh/)
-- **No-wake zones:** Approximated from NH Marine Patrol descriptions. **Not authoritative** — verify on the Bizer chart.
-- **Lake outline:** Hand-traced approximation. The actual shoreline is much more detailed. Acceptable as a background; not for navigation.
-- **Buoys:** Community-contributed. Authoritative source: Bizer chart (paper) + NH Marine Patrol buoys on the water.
+- **No-wake zones:** No layer in this build. Removed 2026-07-05 (was inaccurate).
+- **Buoys & hazards:** Community-contributed. Authoritative source: Bizer chart (paper) + NH Marine Patrol buoys on the water.
 
 ## Roadmap
 
