@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0a3d62" />
+  <title>Winni Nav</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0a3d62;
+      color: #fff;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #map {
+      position: absolute;
+      inset: 0;
+      background: #bfe2f5;
+    }
+    /* HUD overlays */
+    .hud {
+      position: absolute;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .hud > * { pointer-events: auto; }
+    /* Top bar */
+    #topbar {
+      top: env(safe-area-inset-top, 0);
+      left: 0; right: 0;
+      background: linear-gradient(180deg, rgba(10,61,98,0.95), rgba(10,61,98,0.0));
+      padding: 12px 14px 24px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    #title {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+    #title small {
+      font-weight: 400;
+      font-size: 11px;
+      opacity: 0.75;
+      display: block;
+      margin-top: 2px;
+    }
+    #startBtn {
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 24px;
+      padding: 10px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+    }
+    #startBtn.tracking {
+      background: #c0392b;
+    }
+    /* Speedometer / heading (bottom-left) */
+    #hudData {
+      bottom: env(safe-area-inset-bottom, 16px);
+      left: 16px;
+      background: rgba(10, 61, 98, 0.92);
+      border-radius: 16px;
+      padding: 12px 16px;
+      min-width: 140px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .hud-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+    .hud-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      opacity: 0.7;
+    }
+    .hud-value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .hud-unit { font-size: 12px; opacity: 0.7; margin-left: 2px; }
+    /* Compass (small, top-right of HUD) */
+    #compass {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 56px;
+      height: 56px;
+      background: rgba(10,61,98,0.92);
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center;
+      transition: transform 0.2s linear;
+    }
+    #compass::before {
+      content: "N";
+      position: absolute;
+      top: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #e74c3c;
+    }
+    #compass-arrow {
+      width: 0; height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 22px solid #f1c40f;
+    }
+    /* Right-side action buttons */
+    #actions {
+      bottom: env(safe-area-inset-bottom, 16px);
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .icon-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(10,61,98,0.92);
+      color: #fff;
+      border: none;
+      font-size: 22px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-btn.active {
+      background: #2980b9;
+      box-shadow: 0 0 0 3px rgba(41,128,185,0.4), 0 3px 8px rgba(0,0,0,0.35);
+    }
+    /* Layers panel (top-right) */
+    #layers {
+      top: 80px;
+      right: 16px;
+      background: rgba(10,61,98,0.92);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      min-width: 160px;
+    }
+    .layer-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 4px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .layer-toggle input { transform: scale(1.2); cursor: pointer; }
+    /* Buoy add mode banner */
+    #buoyBanner {
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #e67e22;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    /* Modal */
+    #modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    #modal.show { display: flex; }
+    #modal .card {
+      background: #fff;
+      color: #222;
+      border-radius: 14px;
+      padding: 22px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    #modal h2 { margin-top: 0; font-size: 18px; color: #0a3d62; }
+    #modal p { font-size: 14px; line-height: 1.5; color: #444; }
+    #modal .row { display: flex; gap: 8px; margin-top: 14px; }
+    #modal select, #modal input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-top: 6px;
+      box-sizing: border-box;
+    }
+    #modal label { font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+    #modal .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: #0a3d62; color: white; }
+    .btn-secondary { background: #ecf0f1; color: #333; }
+    .btn-danger { background: #c0392b; color: white; }
+    /* Custom marker styles */
+    .buoy-marker {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    .buoy-red { background: #c0392b; }
+    .buoy-green { background: #27ae60; }
+    .buoy-white { background: #ecf0f1; }
+    .buoy-yellow { background: #f1c40f; }
+    .launch-icon {
+      width: 28px;
+      height: 28px;
+      background: #16a085;
+      border: 2px solid white;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: white;
+    }
+    /* Leaflet popup styling */
+    .leaflet-popup-content-wrapper {
+      border-radius: 10px;
+    }
+    .leaflet-popup-content {
+      margin: 10px 12px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .leaflet-popup-content strong { color: #0a3d62; }
+    /* Attribution tweak */
+    .leaflet-control-attribution {
+      font-size: 10px !important;
+      background: rgba(255,255,255,0.8) !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="topbar" class="hud">
+    <div id="title">
+      Winni Nav
+      <small>Live GPS · Recreation aid</small>
+    </div>
+    <button id="startBtn">Start GPS</button>
+  </div>
+
+  <div id="buoyBanner" class="hud">📍 Tap the map to place a buoy</div>
+
+  <div id="layers" class="hud">
+    <label class="layer-toggle"><input type="checkbox" id="layerBuoys" /> Buoys</label>
+    <label class="layer-toggle"><input type="checkbox" id="layerLaunches" checked /> Launches</label>
+    <label class="layer-toggle"><input type="checkbox" id="layerNoWake" checked /> No-wake zones</label>
+    <label class="layer-toggle"><input type="checkbox" id="layerHazards" checked /> Hazards</label>
+  </div>
+
+  <div id="hudData" class="hud">
+    <div id="compass"><div id="compass-arrow"></div></div>
+    <div class="hud-row">
+      <span class="hud-label">Speed</span>
+      <span><span id="speed" class="hud-value">0.0</span><span class="hud-unit">kn</span></span>
+    </div>
+    <div class="hud-row" style="margin-top: 4px;">
+      <span class="hud-label">Heading</span>
+      <span><span id="heading" class="hud-value">—</span><span class="hud-unit">°</span></span>
+    </div>
+    <div class="hud-row" style="margin-top: 4px;">
+      <span class="hud-label">GPS</span>
+      <span id="gpsStatus" style="font-size: 12px; opacity: 0.85;">off</span>
+    </div>
+  </div>
+
+  <div id="actions" class="hud">
+    <button class="icon-btn" id="recenterBtn" title="Recenter on me">⊙</button>
+    <button class="icon-btn" id="buoyModeBtn" title="Add buoy mode">📍</button>
+    <button class="icon-btn" id="exportBtn" title="Export buoys">💾</button>
+    <button class="icon-btn" id="infoBtn" title="Info">ⓘ</button>
+  </div>
+
+  <!-- Buoy add modal -->
+  <div id="modal">
+    <div class="card">
+      <h2 id="modalTitle">Add a buoy</h2>
+      <div id="modalBody"></div>
+      <div class="row" id="modalActions"></div>
+    </div>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <script>
+    // ====================================================================
+    // Winni Nav - Lake Winnipesaukee GPS navigation recreation aid
+    // Built 2026-07-05. v1.
+    // ====================================================================
+
+    const WINNI_CENTER = [43.5682, -71.3214];
+    const WINNI_BOUNDS = L.latLngBounds([43.40, -71.55], [43.70, -71.10]);
+
+    // ----- Lake Winnipesaukee outline (approximate, hand-traced) -----
+    // Format: [lat, lng] pairs forming a closed polygon.
+    const WINNI_OUTLINE = [
+      [43.6404,-71.2880],[43.6367,-71.2796],[43.6286,-71.2738],[43.6182,-71.2700],
+      [43.6090,-71.2640],[43.6017,-71.2550],[43.5950,-71.2480],[43.5863,-71.2450],
+      [43.5770,-71.2432],[43.5682,-71.2410],[43.5604,-71.2370],[43.5530,-71.2300],
+      [43.5480,-71.2200],[43.5450,-71.2080],[43.5440,-71.1950],[43.5440,-71.1830],
+      [43.5470,-71.1720],[43.5510,-71.1620],[43.5555,-71.1525],[43.5580,-71.1410],
+      [43.5575,-71.1300],[43.5540,-71.1200],[43.5480,-71.1130],[43.5400,-71.1090],
+      [43.5300,-71.1070],[43.5190,-71.1075],[43.5085,-71.1100],[43.5000,-71.1145],
+      [43.4940,-71.1220],[43.4895,-71.1320],[43.4860,-71.1440],[43.4830,-71.1570],
+      [43.4805,-71.1710],[43.4780,-71.1850],[43.4755,-71.1980],[43.4735,-71.2100],
+      [43.4720,-71.2220],[43.4710,-71.2330],[43.4700,-71.2420],[43.4690,-71.2500],
+      [43.4685,-71.2580],[43.4685,-71.2660],[43.4690,-71.2740],[43.4700,-71.2820],
+      [43.4715,-71.2900],[43.4735,-71.2980],[43.4760,-71.3060],[43.4790,-71.3140],
+      [43.4825,-71.3210],[43.4870,-71.3275],[43.4920,-71.3335],[43.4980,-71.3385],
+      [43.5045,-71.3425],[43.5115,-71.3455],[43.5185,-71.3475],[43.5255,-71.3485],
+      [43.5325,-71.3485],[43.5395,-71.3475],[43.5460,-71.3455],[43.5520,-71.3425],
+      [43.5575,-71.3385],[43.5625,-71.3335],[43.5670,-71.3275],[43.5710,-71.3210],
+      [43.5745,-71.3140],[43.5775,-71.3060],[43.5800,-71.2980],[43.5820,-71.2900],
+      [43.5835,-71.2820],[43.5845,-71.2740],[43.5850,-71.2660],[43.5855,-71.2580],
+      [43.5860,-71.2500],[43.5870,-71.2420],[43.5885,-71.2340],[43.5910,-71.2270],
+      [43.5945,-71.2205],[43.5990,-71.2145],[43.6045,-71.2095],[43.6110,-71.2055],
+      [43.6180,-71.2030],[43.6250,-71.2020],[43.6320,-71.2030],[43.6380,-71.2060],
+      [43.6430,-71.2105],[43.6470,-71.2165],[43.6500,-71.2230],[43.6520,-71.2300],
+      [43.6530,-71.2380],[43.6525,-71.2460],[43.6505,-71.2535],[43.6470,-71.2600],
+      [43.6425,-71.2660],[43.6404,-71.2880]
+    ];
+
+    // ----- Major islands (very rough polygons) -----
+    const ISLANDS = [
+      { name: "Long Island", shape: [[43.6580,-71.1900],[43.6650,-71.1820],[43.6720,-71.1850],[43.6700,-71.1940],[43.6620,-71.1980],[43.6580,-71.1900]] },
+      { name: "Meredith Neck", shape: [[43.6100,-71.2600],[43.6200,-71.2550],[43.6250,-71.2620],[43.6180,-71.2700],[43.6080,-71.2680],[43.6100,-71.2600]] },
+    ];
+
+    // ----- Approximate no-wake zones (NH Marine Patrol — rough boundaries) -----
+    // These are broad outlines. Treat as guidance, not authoritative.
+    const NO_WAKE_ZONES = [
+      { name: "Meredith Bay", shape: [[43.6580,-71.5020],[43.6580,-71.4900],[43.6500,-71.4880],[43.6500,-71.5020]] },
+      // Weirs Beach area (south shore)
+      { name: "Weirs Beach / Paugus Bay S", shape: [[43.5200,-71.4300],[43.5200,-71.4150],[43.5100,-71.4150],[43.5100,-71.4300]] },
+      // Alton Bay (southernmost arm)
+      { name: "Alton Bay", shape: [[43.4700,-71.2400],[43.4700,-71.2200],[43.4580,-71.2200],[43.4580,-71.2400]] },
+      // Wolfeboro Bay
+      { name: "Wolfeboro Bay", shape: [[43.5830,-71.2150],[43.5830,-71.2000],[43.5720,-71.2000],[43.5720,-71.2150]] },
+    ];
+
+    // ----- Named hazards / rocky shoals (informational) -----
+    const HAZARDS = [
+      { name: "The Broads", lat: 43.6080, lng: -71.1600, note: "Wide shallow section, mind the depth." },
+      { name: "Rocky Shoal", lat: 43.5510, lng: -71.3300, note: "Submerged rocks — buoys mark them." },
+      { name: "Five-Finger Point", lat: 43.5340, lng: -71.3020, note: "Rocks extend out from point." },
+    ];
+
+    // ----- Public boat launches (18 verified NH locations) -----
+    const LAUNCHES = [
+      { name: "Meredith Town Docks (Hesky Park)", lat: 43.6601, lng: -71.5017, fee: "$20", note: "Attendant 7am-3am, 7 days. Trailer lot on Lovejoy Sands Rd." },
+      { name: "Center Harbor Town Docks", lat: 43.6520, lng: -71.4720, fee: "$15 non-resident", note: "No overnight parking/docking." },
+      { name: "Wolfeboro Town Docks", lat: 43.5848, lng: -71.2102, fee: "Free", note: "Downtown Wolfeboro." },
+      { name: "Libby Museum (Wolfeboro)", lat: 43.5860, lng: -71.2135, fee: "Free", note: "Bridge clearance ~4 ft to big lake." },
+      { name: "Goodhue & Hawkins Navy Yard", lat: 43.5860, lng: -71.2180, fee: "Free", note: "Sewall Rd, off N Main St." },
+      { name: "Melvin Village Public Landing", lat: 43.5890, lng: -71.2950, fee: "Free", note: "Opposite Libby Museum. No parking." },
+      { name: "Lee's Mills Landing", lat: 43.6120, lng: -71.3800, fee: "Free (residents only)", note: "Town parking pass required." },
+      { name: "States Landing", lat: 43.6330, lng: -71.3550, fee: "Free (residents only)", note: "Launch only, no docks." },
+      { name: "Long Island Landing", lat: 43.6680, lng: -71.1900, fee: "Free (residents only)", note: "No trailer parking; park at fire station." },
+      { name: "Fay's Boat Yard (Gilford)", lat: 43.5470, lng: -71.4010, fee: "Fee", note: "Varney Point Rd, off Rte 11. Mooring field, gas dock." },
+      { name: "Downing's Landing (Alton Bay)", lat: 43.4690, lng: -71.2340, fee: "Unknown", note: "Rt 11 / 28A. Gas available." },
+      { name: "Alton Bay Public Launch", lat: 43.4710, lng: -71.2340, fee: "Free", note: "Rt 11 / 28A. Trailer parking ~1/2 mi away." },
+      { name: "Roberts Cove Basin", lat: 43.4720, lng: -71.2380, fee: "$20", note: "Cash only. 28 Basin Rd, Alton." },
+      { name: "West Alton Marina", lat: 43.4820, lng: -71.2300, fee: "$40 daily", note: "24/7. Rt 11 & 11A." },
+      { name: "Merrymeeting Public Ramp", lat: 43.4940, lng: -71.1820, fee: "Free", note: "317 Merrymeeting Rd, New Durham." },
+      { name: "Christmas Island (Laconia)", lat: 43.5260, lng: -71.4280, fee: "Fee", note: "65 Gold St, Lakeport." },
+      { name: "Silver Sands Marina", lat: 43.5120, lng: -71.4340, fee: "Fee", note: "630 Weirs Blvd, Weirs Beach." },
+      { name: "Goodhue Boat Company (Meredith)", lat: 43.6590, lng: -71.4980, fee: "Fee", note: "31 Lovejoy Sands Rd. Full-service marina." },
+    ];
+
+    // ----- App state -----
+    let map;
+    let watchId = null;
+    let userMarker = null;
+    let userAccuracyCircle = null;
+    let lastPos = null;
+    let lastTime = null;
+    let buoyAddMode = false;
+    let pendingBuoyLatLng = null;
+
+    const layers = {
+      lake: null,
+      islands: null,
+      noWake: null,
+      hazards: null,
+      launches: null,
+      buoys: null,
+      user: null,
+    };
+
+    const storedBuoys = JSON.parse(localStorage.getItem('winniBuoys') || '[]');
+
+    // ----- Map setup -----
+    function initMap() {
+      map = L.map('map', {
+        center: WINNI_CENTER,
+        zoom: 12,
+        minZoom: 10,
+        maxZoom: 18,
+        maxBounds: WINNI_BOUNDS.pad(0.2),
+        zoomControl: false,
+      });
+
+      L.control.zoom({ position: 'topleft' }).addTo(map);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
+      layers.user = L.layerGroup().addTo(map);
+
+      layers.lake = L.polygon(WINNI_OUTLINE, {
+        color: '#0a3d62',
+        weight: 2,
+        fillColor: '#3498db',
+        fillOpacity: 0.20,
+        interactive: false,
+      }).addTo(map);
+
+      layers.islands = L.layerGroup();
+      ISLANDS.forEach(isl => {
+        L.polygon(isl.shape, {
+          color: '#0a3d62',
+          weight: 1,
+          fillColor: '#7f8c8d',
+          fillOpacity: 0.65,
+          interactive: false,
+        }).addTo(layers.islands).bindTooltip(isl.name, { permanent: false });
+      });
+
+      layers.noWake = L.layerGroup();
+      NO_WAKE_ZONES.forEach(z => {
+        L.polygon(z.shape, {
+          color: '#e67e22',
+          weight: 1.5,
+          fillColor: '#f39c12',
+          fillOpacity: 0.25,
+          dashArray: '6 4',
+        }).addTo(layers.noWake).bindPopup(`<strong>No-wake zone</strong><br>${z.name}<br><em>Approximate boundary</em>`);
+      });
+      layers.noWake.addTo(map);
+
+      layers.hazards = L.layerGroup();
+      HAZARDS.forEach(h => {
+        L.marker([h.lat, h.lng], {
+          icon: L.divIcon({
+            className: '',
+            html: '<div class="buoy-marker buoy-yellow"></div>',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7],
+          })
+        }).addTo(layers.hazards).bindPopup(`<strong>${h.name}</strong><br>${h.note}`);
+      });
+      layers.hazards.addTo(map);
+
+      layers.launches = L.layerGroup();
+      LAUNCHES.forEach(l => {
+        L.marker([l.lat, l.lng], {
+          icon: L.divIcon({
+            className: '',
+            html: '<div class="launch-icon">⛵</div>',
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+          })
+        }).addTo(layers.launches).bindPopup(
+          `<strong>${l.name}</strong><br>Fee: ${l.fee}<br>${l.note}`
+        );
+      });
+      layers.launches.addTo(map);
+
+      layers.buoys = L.layerGroup();
+      storedBuoys.forEach(b => addBuoyToLayer(b));
+      layers.buoys.addTo(map);
+
+      map.on('click', onMapClick);
+    }
+
+    // ----- Buoy CRUD -----
+    const BUOY_TYPES = {
+      red:    { label: 'Red nun (port)',     color: 'red',    note: 'Keep to your right when returning from sea (right side of channel).' },
+      green:  { label: 'Green can (starboard)', color: 'green', note: 'Keep to your left when returning from sea.' },
+      white:  { label: 'White/spar',         color: 'white',  note: 'Information or hazard marker.' },
+      yellow: { label: 'Yellow hazard',      color: 'yellow', note: 'Caution — rock, shoal, or obstruction.' },
+    };
+
+    function addBuoyToLayer(b) {
+      const icon = L.divIcon({
+        className: '',
+        html: `<div class="buoy-marker buoy-${b.color}"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      });
+      L.marker([b.lat, b.lng], { icon })
+        .addTo(layers.buoys)
+        .bindPopup(
+          `<strong>${BUOY_TYPES[b.color].label}</strong><br>` +
+          (b.note ? b.note + '<br>' : '') +
+          `<small>Added ${new Date(b.added).toLocaleDateString()}</small><br>` +
+          `<a href="#" onclick="deleteBuoy('${b.id}'); return false;">Delete</a>`
+        );
+    }
+
+    function saveBuoys() {
+      localStorage.setItem('winniBuoys', JSON.stringify(storedBuoys));
+    }
+
+    function addBuoy(buoy) {
+      storedBuoys.push(buoy);
+      addBuoyToLayer(buoy);
+      saveBuoys();
+    }
+
+    window.deleteBuoy = function(id) {
+      const idx = storedBuoys.findIndex(b => b.id === id);
+      if (idx === -1) return;
+      storedBuoys.splice(idx, 1);
+      saveBuoys();
+      rebuildBuoyLayer();
+      map.closePopup();
+    };
+
+    function rebuildBuoyLayer() {
+      layers.buoys.clearLayers();
+      storedBuoys.forEach(b => addBuoyToLayer(b));
+    }
+
+    function onMapClick(e) {
+      if (!buoyAddMode) return;
+      pendingBuoyLatLng = e.latlng;
+      showBuoyModal(e.latlng);
+    }
+
+    function showBuoyModal(latlng) {
+      const modal = document.getElementById('modal');
+      const body = document.getElementById('modalBody');
+      const actions = document.getElementById('modalActions');
+      const title = document.getElementById('modalTitle');
+
+      title.textContent = 'Add a buoy';
+      body.innerHTML = `
+        <p style="margin: 0 0 12px;">At <strong>${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</strong></p>
+        <label>Type</label>
+        <select id="buoyType">
+          ${Object.entries(BUOY_TYPES).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')}
+        </select>
+        <label style="display:block; margin-top: 12px;">Note (optional)</label>
+        <input type="text" id="buoyNote" placeholder="e.g. marks ledge, white stripe, unlit" />
+      `;
+      actions.innerHTML = `
+        <button class="btn btn-secondary" onclick="cancelModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmBuoy()">Save</button>
+      `;
+      modal.classList.add('show');
+    }
+
+    window.cancelModal = function() {
+      document.getElementById('modal').classList.remove('show');
+      pendingBuoyLatLng = null;
+    };
+
+    window.confirmBuoy = function() {
+      const type = document.getElementById('buoyType').value;
+      const note = document.getElementById('buoyNote').value.trim();
+      const buoy = {
+        id: 'b' + Date.now() + Math.random().toString(36).slice(2, 7),
+        lat: pendingBuoyLatLng.lat,
+        lng: pendingBuoyLatLng.lng,
+        color: type,
+        note,
+        added: new Date().toISOString(),
+      };
+      addBuoy(buoy);
+      cancelModal();
+      exitBuoyMode();
+    };
+
+    // ----- Buoy add mode -----
+    function enterBuoyMode() {
+      buoyAddMode = true;
+      document.getElementById('buoyModeBtn').classList.add('active');
+      document.getElementById('buoyBanner').style.display = 'block';
+      document.getElementById('layerBuoys').checked = true;
+      layers.buoys.addTo(map);
+    }
+    function exitBuoyMode() {
+      buoyAddMode = false;
+      document.getElementById('buoyModeBtn').classList.remove('active');
+      document.getElementById('buoyBanner').style.display = 'none';
+    }
+
+    // ----- GPS tracking -----
+    function startTracking() {
+      if (!('geolocation' in navigator)) {
+        document.getElementById('gpsStatus').textContent = 'unsupported';
+        return;
+      }
+      document.getElementById('gpsStatus').textContent = 'acquiring…';
+      watchId = navigator.geolocation.watchPosition(onPos, onPosErr, {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 15000,
+      });
+      document.getElementById('startBtn').textContent = 'Stop GPS';
+      document.getElementById('startBtn').classList.add('tracking');
+
+      // Try to use device orientation for heading if available
+      if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', onOrient);
+      }
+    }
+
+    function stopTracking() {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      if (userMarker) {
+        layers.user.removeLayer(userMarker);
+        userMarker = null;
+      }
+      if (userAccuracyCircle) {
+        layers.user.removeLayer(userAccuracyCircle);
+        userAccuracyCircle = null;
+      }
+      document.getElementById('startBtn').textContent = 'Start GPS';
+      document.getElementById('startBtn').classList.remove('tracking');
+      document.getElementById('gpsStatus').textContent = 'off';
+      document.getElementById('speed').textContent = '0.0';
+      document.getElementById('heading').textContent = '—';
+      window.removeEventListener('deviceorientation', onOrient);
+    }
+
+    function onPos(pos) {
+      const c = pos.coords;
+      const latlng = [c.latitude, c.longitude];
+      const now = Date.now();
+
+      document.getElementById('gpsStatus').textContent = `${c.latitude.toFixed(4)}, ${c.longitude.toFixed(4)}`;
+
+      if (!userMarker) {
+        const icon = L.divIcon({
+          className: '',
+          html: '<div style="width:18px;height:18px;border-radius:50%;background:#e74c3c;border:3px solid white;box-shadow:0 0 0 2px rgba(231,76,60,0.4), 0 2px 6px rgba(0,0,0,0.5);"></div>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        });
+        userMarker = L.marker(latlng, { icon, zIndexOffset: 1000 }).addTo(layers.user);
+        userMarker.bindPopup('You are here');
+      } else {
+        userMarker.setLatLng(latlng);
+      }
+
+      if (c.accuracy) {
+        if (!userAccuracyCircle) {
+          userAccuracyCircle = L.circle(latlng, {
+            radius: c.accuracy,
+            color: '#e74c3c',
+            fillColor: '#e74c3c',
+            fillOpacity: 0.08,
+            weight: 1,
+          }).addTo(layers.user);
+        } else {
+          userAccuracyCircle.setLatLng(latlng);
+          userAccuracyCircle.setRadius(c.accuracy);
+        }
+      }
+
+      // Speed: prefer GPS speed, else derive from position deltas
+      let speedKn = 0;
+      if (c.speed != null && !isNaN(c.speed)) {
+        speedKn = c.speed * 1.94384; // m/s -> knots
+      } else if (lastPos && lastTime) {
+        const dt = (now - lastTime) / 1000;
+        if (dt > 0) {
+          const d = haversine(lastPos.lat, lastPos.lng, c.latitude, c.longitude);
+          speedKn = (d / dt) * 1.94384;
+        }
+      }
+      document.getElementById('speed').textContent = speedKn.toFixed(1);
+
+      // Heading: prefer GPS heading if moving, else compass
+      let headingDeg = null;
+      if (c.heading != null && !isNaN(c.heading) && speedKn > 0.5) {
+        headingDeg = c.heading;
+      } else if (lastHeading != null) {
+        headingDeg = lastHeading;
+      }
+      if (headingDeg != null) {
+        lastHeading = headingDeg;
+        document.getElementById('heading').textContent = headingDeg.toFixed(0);
+        userMarker.setRotationAngle(headingDeg);
+      }
+
+      lastPos = { lat: c.latitude, lng: c.longitude };
+      lastTime = now;
+    }
+
+    let lastHeading = null;
+
+    function haversine(lat1, lon1, lat2, lon2) {
+      const R = 6371000; // meters
+      const toRad = x => x * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function onPosErr(err) {
+      document.getElementById('gpsStatus').textContent = `error: ${err.message}`;
+    }
+
+    function onOrient(e) {
+      // Use compass when not moving
+      if (e.webkitCompassHeading != null) {
+        // iOS
+        lastHeading = e.webkitCompassHeading;
+        document.getElementById('heading').textContent = e.webkitCompassHeading.toFixed(0);
+        document.getElementById('compass').style.transform = `rotate(${-e.webkitCompassHeading}deg)`;
+        if (userMarker) userMarker.setRotationAngle(e.webkitCompassHeading);
+      } else if (e.alpha != null) {
+        // Android
+        const h = (360 - e.alpha) % 360;
+        lastHeading = h;
+        document.getElementById('heading').textContent = h.toFixed(0);
+        document.getElementById('compass').style.transform = `rotate(${e.alpha}deg)`;
+        if (userMarker) userMarker.setRotationAngle(h);
+      }
+    }
+
+    // ----- UI wiring -----
+    function wireUI() {
+      const startBtn = document.getElementById('startBtn');
+      startBtn.addEventListener('click', () => {
+        if (watchId === null) startTracking();
+        else stopTracking();
+      });
+
+      document.getElementById('recenterBtn').addEventListener('click', () => {
+        if (userMarker) {
+          map.setView(userMarker.getLatLng(), 15, { animate: true });
+        } else if (lastPos) {
+          map.setView([lastPos.lat, lastPos.lng], 15);
+        }
+      });
+
+      document.getElementById('buoyModeBtn').addEventListener('click', () => {
+        if (buoyAddMode) exitBuoyMode();
+        else enterBuoyMode();
+      });
+
+      document.getElementById('exportBtn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(storedBuoys, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `winni-buoys-${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      document.getElementById('infoBtn').addEventListener('click', () => {
+        const modal = document.getElementById('modal');
+        const body = document.getElementById('modalBody');
+        const actions = document.getElementById('modalActions');
+        const title = document.getElementById('modalTitle');
+        title.textContent = 'Winni Nav v1';
+        body.innerHTML = `
+          <p><strong>Recreation aid — not for primary navigation.</strong></p>
+          <p>Always defer to official charts, visual markers, NH Marine Patrol buoys, and the Bizer chart.</p>
+          <p style="font-size:12px;color:#666;">
+            Layers: buoys (community-contributed), public launches, no-wake zones (approximate), named hazards.<br>
+            Data sources: Roche Realty launch list, NH Marine Patrol zones (estimated), OpenStreetMap base map.<br>
+            Buoys: maintained by NH Marine Patrol; this app shows only buoys you add yourself. Tap 📍 then tap the map to place one.
+          </p>
+          <p style="font-size:12px;color:#666;">
+            <strong>Buoys saved locally:</strong> ${storedBuoys.length}<br>
+            Use 💾 to export your buoys as a JSON file.
+          </p>
+        `;
+        actions.innerHTML = `<button class="btn btn-primary" onclick="cancelModal()">Close</button>`;
+        modal.classList.add('show');
+      });
+
+      document.getElementById('layerBuoys').addEventListener('change', e => {
+        if (e.target.checked) layers.buoys.addTo(map);
+        else map.removeLayer(layers.buoys);
+      });
+      document.getElementById('layerLaunches').addEventListener('change', e => {
+        if (e.target.checked) layers.launches.addTo(map);
+        else map.removeLayer(layers.launches);
+      });
+      document.getElementById('layerNoWake').addEventListener('change', e => {
+        if (e.target.checked) layers.noWake.addTo(map);
+        else map.removeLayer(layers.noWake);
+      });
+      document.getElementById('layerHazards').addEventListener('change', e => {
+        if (e.target.checked) layers.hazards.addTo(map);
+        else map.removeLayer(layers.hazards);
+      });
+    }
+
+    // ----- Boot -----
+    document.addEventListener('DOMContentLoaded', () => {
+      initMap();
+      wireUI();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Local dev artifacts
+data/
+*.log
+
+# Vercel
+.vercel/
