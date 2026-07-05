@@ -14,6 +14,7 @@ A lightweight, no-backend web app for navigating Lake Winnipesaukee from your ph
 ## What it does NOT do (yet)
 
 - **No official buoy data.** USCG ATON dataset is coastal-only — inland lake buoys on Winnipesaukee are maintained by NH Marine Patrol (~600 of them) and not published in machine-readable form. The printed **Bizer chart** sold at marinas is the authoritative source. Buoy layer is user-contributed; populate it by boating and tapping.
+- **No no-wake zones.** Earlier versions included 50 zones from NH Admin Rules Saf-C 5102.96, but the polygon coordinates relied on memory-based island positions and were inaccurate. Removed 2026-07-05. When you see a no-wake buoy on the water, slow down — those are authoritative. (For future: a community-contributed no-wake layer would work the same way as the buoy layer.)
 - **Not a navigation system.** Recreation aid. Always defer to official charts and visual markers.
 
 ## Files
