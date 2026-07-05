@@ -236,3 +236,45 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Geographic fixes applied 2026-07-05 after first deploy showed zones
+# misaligned — the named-feature geocoding had a north/south mix-up
+# (Lockes Island etc. were placed too far north near Tuftonboro east
+# shore instead of in Moultonborough south of Paugus Bay).
+# See git log for "Replace 4 made-up no-wake zones..." and follow-up.
+FIXES = {
+    # Lockes/Pig/Varney Point area is in Moultonborough south of Paugus Bay
+    "nw-f": {"name": "Locke's Island (600 ft N of red/white buoy)", "shape": [[43.5570, -71.4030], [43.5585, -71.4010], [43.5598, -71.4020], [43.5585, -71.4040]]},
+    "nw-ax": {"name": "Pig Island / Lockes Island area", "shape": [[43.5590, -71.4070], [43.5610, -71.4045], [43.5630, -71.4070], [43.5620, -71.4100], [43.5600, -71.4105]]},
+    # Center-lake channels in proper positions
+    "nw-h": {"name": "Loon Island / Meredith mainland channel", "shape": [[43.6545, -71.4268], [43.6565, -71.4255], [43.6575, -71.4275], [43.6555, -71.4290]]},
+    "nw-i": {"name": "Varney / Kenniston Island channel", "shape": [[43.6570, -71.4170], [43.6590, -71.4155], [43.6600, -71.4175], [43.6580, -71.4190]]},
+    "nw-j": {"name": "Pine Island / Meredith Neck channel", "shape": [[43.6621, -71.4268], [43.6640, -71.4250], [43.6655, -71.4270], [43.6630, -71.4290]]},
+    "nw-k": {"name": "Horse Island / Meredith Neck channel", "shape": [[43.6309, -71.4126], [43.6325, -71.4110], [43.6340, -71.4130], [43.6320, -71.4150]]},
+    "nw-l": {"name": "Governor's Island Bridge / Lt #69", "shape": [[43.6089, -71.4256], [43.6105, -71.4240], [43.6120, -71.4260], [43.6100, -71.4280]]},
+    # Central Moultonborough islands
+    "nw-r": {"name": "Three Mile Island / Hawk's Nest channel", "shape": [[43.6710, -71.3340], [43.6735, -71.3320], [43.6745, -71.3340], [43.6720, -71.3360]]},
+    "nw-s": {"name": "Beaver Island channel", "shape": [[43.6750, -71.3580], [43.6775, -71.3560], [43.6790, -71.3580], [43.6765, -71.3600]]},
+    "nw-t": {"name": "Black Cat Island Bridge", "shape": [[43.6835, -71.4210], [43.6855, -71.4195], [43.6865, -71.4215], [43.6845, -71.4230]]},
+    "nw-u": {"name": "Mark / Mink Island channel", "shape": [[43.6770, -71.3480], [43.6790, -71.3465], [43.6800, -71.3485], [43.6780, -71.3500]]},
+    "nw-aa": {"name": "Whaleback Island / Moultonborough Neck channel", "shape": [[43.7215, -71.3850], [43.7235, -71.3835], [43.7245, -71.3855], [43.7225, -71.3870]]},
+    "nw-ab": {"name": "Ganzey Island channel", "shape": [[43.6820, -71.3580], [43.6840, -71.3565], [43.6850, -71.3585], [43.6830, -71.3600]]},
+    "nw-ac": {"name": "9 Acre Island channel", "shape": [[43.7185, -71.3770], [43.7205, -71.3755], [43.7215, -71.3775], [43.7195, -71.3790]]},
+    "nw-ad": {"name": "Long Island Bridge", "shape": [[43.6600, -71.3485], [43.6620, -71.3470], [43.6630, -71.3490], [43.6610, -71.3505]]},
+    "nw-aw": {"name": "Senter Cove", "shape": [[43.6930, -71.4070], [43.6950, -71.4055], [43.6960, -71.4075], [43.6940, -71.4090]]},
+    # Misc fixes
+    "nw-ae": {"name": "Devens Island / Lt #65", "shape": [[43.6660, -71.3380], [43.6680, -71.3370], [43.6690, -71.3390], [43.6670, -71.3405]]},
+    "nw-af": {"name": "Hermit Island", "shape": [[43.6730, -71.3220], [43.6745, -71.3205], [43.6760, -71.3225], [43.6745, -71.3240]]},
+    "nw-ag": {"name": "Salmon Meadow Cove", "shape": [[43.7050, -71.4175], [43.7070, -71.4160], [43.7085, -71.4180], [43.7070, -71.4200]]},
+    "nw-al": {"name": "Farm Island / Tuftonboro channel", "shape": [[43.6476, -71.2872], [43.6495, -71.2855], [43.6510, -71.2875], [43.6490, -71.2895]]},
+    "nw-an": {"name": "Geneva Point Center / Black Island cove", "shape": [[43.6730, -71.3205], [43.6745, -71.3190], [43.6760, -71.3210], [43.6745, -71.3225]]},
+    "nw-ao": {"name": "Fish Cove (south of Ledge Island)", "shape": [[43.6630, -71.3380], [43.6645, -71.3365], [43.6660, -71.3385], [43.6645, -71.3400]]},
+    "nw-ap": {"name": "Bear Island mail dock (channel to Pine Is)", "shape": [[43.6600, -71.4300], [43.6620, -71.4285], [43.6630, -71.4305], [43.6615, -71.4320]]},
+    "nw-ar": {"name": "Langley Cove (Paugus Bay)", "shape": [[43.5720, -71.4350], [43.5735, -71.4335], [43.5745, -71.4355], [43.5730, -71.4370]]},
+    "nw-as": {"name": "Cow Island unnamed cove (E of Lt #41)", "shape": [[43.6285, -71.3075], [43.6300, -71.3060], [43.6315, -71.3080], [43.6300, -71.3100]]},
+    "nw-at": {"name": "Raoul's Cove (Moultonborough)", "shape": [[43.7050, -71.4010], [43.7070, -71.3995], [43.7085, -71.4015], [43.7070, -71.4035]]},
+    "nw-av": {"name": "Eagle Island Narrows", "shape": [[43.6193, -71.4399], [43.6210, -71.4380], [43.6225, -71.4400], [43.6205, -71.4420]]},
+    "nw-o": {"name": "Chase Island / Farm Island channel", "shape": [[43.6476, -71.2872], [43.6495, -71.2855], [43.6510, -71.2875], [43.6490, -71.2895]]},
+    "nw-p": {"name": "Governor's Island (SW cove)", "shape": [[43.6080, -71.4270], [43.6095, -71.4255], [43.6105, -71.4275], [43.6090, -71.4290]]},
+    "nw-q": {"name": "Fish Cove", "shape": [[43.6404, -71.3415], [43.6420, -71.3400], [43.6435, -71.3415], [43.6420, -71.3435]]},
+}
