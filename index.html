@@ -384,26 +384,50 @@
       { name: "Five-Finger Point", lat: 43.5340, lng: -71.3020, note: "Rocks extend out from point." },
     ];
 
-    // ----- Public boat launches (18 verified NH locations) -----
+    // ----- Public boat launches -----
+    // Coordinates sourced from Google Maps place pins (Roche Realty launch
+    // directory shortlinks) and BoatLaunchMap.com. 2026-07-05.
     const LAUNCHES = [
-      { name: "Meredith Town Docks (Hesky Park)", lat: 43.6601, lng: -71.5017, fee: "$20", note: "Attendant 7am-3am, 7 days. Trailer lot on Lovejoy Sands Rd." },
-      { name: "Center Harbor Town Docks", lat: 43.6520, lng: -71.4720, fee: "$15 non-resident", note: "No overnight parking/docking." },
-      { name: "Wolfeboro Town Docks", lat: 43.5848, lng: -71.2102, fee: "Free", note: "Downtown Wolfeboro." },
-      { name: "Libby Museum (Wolfeboro)", lat: 43.5860, lng: -71.2135, fee: "Free", note: "Bridge clearance ~4 ft to big lake." },
-      { name: "Goodhue & Hawkins Navy Yard", lat: 43.5860, lng: -71.2180, fee: "Free", note: "Sewall Rd, off N Main St." },
-      { name: "Melvin Village Public Landing", lat: 43.5890, lng: -71.2950, fee: "Free", note: "Opposite Libby Museum. No parking." },
-      { name: "Lee's Mills Landing", lat: 43.6120, lng: -71.3800, fee: "Free (residents only)", note: "Town parking pass required." },
-      { name: "States Landing", lat: 43.6330, lng: -71.3550, fee: "Free (residents only)", note: "Launch only, no docks." },
-      { name: "Long Island Landing", lat: 43.6680, lng: -71.1900, fee: "Free (residents only)", note: "No trailer parking; park at fire station." },
-      { name: "Fay's Boat Yard (Gilford)", lat: 43.5470, lng: -71.4010, fee: "Fee", note: "Varney Point Rd, off Rte 11. Mooring field, gas dock." },
-      { name: "Downing's Landing (Alton Bay)", lat: 43.4690, lng: -71.2340, fee: "Unknown", note: "Rt 11 / 28A. Gas available." },
-      { name: "Alton Bay Public Launch", lat: 43.4710, lng: -71.2340, fee: "Free", note: "Rt 11 / 28A. Trailer parking ~1/2 mi away." },
-      { name: "Roberts Cove Basin", lat: 43.4720, lng: -71.2380, fee: "$20", note: "Cash only. 28 Basin Rd, Alton." },
-      { name: "West Alton Marina", lat: 43.4820, lng: -71.2300, fee: "$40 daily", note: "24/7. Rt 11 & 11A." },
-      { name: "Merrymeeting Public Ramp", lat: 43.4940, lng: -71.1820, fee: "Free", note: "317 Merrymeeting Rd, New Durham." },
-      { name: "Christmas Island (Laconia)", lat: 43.5260, lng: -71.4280, fee: "Fee", note: "65 Gold St, Lakeport." },
-      { name: "Silver Sands Marina", lat: 43.5120, lng: -71.4340, fee: "Fee", note: "630 Weirs Blvd, Weirs Beach." },
-      { name: "Goodhue Boat Company (Meredith)", lat: 43.6590, lng: -71.4980, fee: "Fee", note: "31 Lovejoy Sands Rd. Full-service marina." },
+      // Wolfe­boro / eastern shore
+      { name: "Wolfeboro Town Docks", lat: 43.5837565, lng: -71.2122564, fee: "Free", note: "Downtown Wolfeboro, Main St / Rte 109." },
+      { name: "Back Bay (Wolfeboro)", lat: 43.585911, lng: -71.213001, fee: "Free", note: "21 Railroad Ave, behind old Wolfeboro railroad terminal." },
+      { name: "Goodhue & Hawkins Navy Yard", lat: 43.5735719, lng: -71.2244613, fee: "Free", note: "Sewall Rd, off N Main St, Wolfeboro." },
+      { name: "Libby Museum (Wolfeboro)", lat: 43.6143311, lng: -71.2584686, fee: "Free", note: "Bay St, Wolfeboro. Bridge clearance ~4 ft to big lake." },
+
+      // Melvin / Tuftonboro
+      { name: "Melvin Village Public Landing", lat: 43.6890540, lng: -71.3042209, fee: "Free", note: "Opposite Libby Museum on Rte 109. No parking." },
+
+      // Moultonborough
+      { name: "Long Island Boat Launch", lat: 43.662645, lng: -71.349061, fee: "Free (residents only)", note: "Long Island Rd. No trailer parking — park at Moultonborough Neck Fire Station." },
+      { name: "Harilla Landing", lat: 43.640585, lng: -71.339683, fee: "Free", note: "Moultonborough water access." },
+      { name: "States Landing", lat: 43.7269174, lng: -71.3741505, fee: "Free (residents only)", note: "End of States Landing Rd, Moultonborough. Launch only, no docks." },
+      { name: "Lee's Mills Landing", lat: 43.7344374, lng: -71.3901687, fee: "Free (residents only)", note: "End of Lee's Mill Rd. Town parking pass required. Environmentally sensitive area." },
+
+      // Center Harbor / Meredith
+      { name: "Center Harbor Town Docks", lat: 43.7079425, lng: -71.4607, fee: "$15 non-resident", note: "Rte 25, Center Harbor. No overnight parking/docking." },
+      { name: "Lovejoy Public Landing", lat: 43.65034, lng: -71.427325, fee: "Free", note: "Meredith side, near Center Harbor." },
+      { name: "Meredith Town Docks (Hesky Park)", lat: 43.656664, lng: -71.4984012, fee: "$20", note: "291 Daniel Webster Hwy. Attendant 7am-3am, 7 days. Trailer lot on Lovejoy Sands Rd." },
+      { name: "Goodhue Boat Company / Shep Brown's", lat: 43.656664, lng: -71.4984012, fee: "Fee", note: "31 Lovejoy Sands Rd, Meredith. Full-service marina (formerly Shep Brown's)." },
+
+      // Gilford / Paugus Bay
+      { name: "Glendale Docks", lat: 43.585248, lng: -71.388436, fee: "Free", note: "Glendale, Gilford. Fishing access." },
+      { name: "Ellacoya State Park", lat: 43.575707, lng: -71.35401, fee: "Fee (state park)", note: "Ellacoya State Park, Gilford. State-park day-use fee." },
+      { name: "Fay's Boat Yard", lat: 43.5837704, lng: -71.3960503, fee: "Fee", note: "71 Varney Point Rd, Gilford. Mooring field, gas dock, rentals." },
+
+      // Weirs Beach / Laconia
+      { name: "Silver Sands Marina (Weirs Beach)", lat: 43.5987072, lng: -71.4554147, fee: "Fee", note: "630 Weirs Blvd, Weirs Beach / Laconia." },
+      { name: "Christmas Island (Lakeport)", lat: 43.5493922, lng: -71.4626949, fee: "Fee", note: "65 Gold St, Lakeport (Laconia). Marina with fuel + pump-out." },
+
+      // Alton Bay (southern tip)
+      { name: "Alton Bay Public Launch", lat: 43.4709263, lng: -71.233593, fee: "Free", note: "Rt 11 / 28A, Alton Bay. Trailer parking ~1/2 mi away." },
+      { name: "Downing's Landing", lat: 43.470804, lng: -71.2336994, fee: "Unknown", note: "Rt 11 / 28A, Alton Bay. Gas dock." },
+      { name: "Roberts Cove Basin", lat: 43.5285052, lng: -71.2140153, fee: "$20", note: "28 Basin Rd, Alton. Cash only. Soda, ice cream, restrooms." },
+      { name: "Echo Point (Alton)", lat: 43.503229, lng: -71.247661, fee: "Free", note: "Public ramp, Alton." },
+      { name: "West Alton Marina", lat: 43.542982, lng: -71.297794, fee: "$40 daily", note: "Rt 11 & 11A, West Alton. 24/7 access." },
+      { name: "Alton Public Dock", lat: 43.472798, lng: -71.23666, fee: "Free", note: "Town water access, Alton Bay." },
+
+      // South-east shore
+      { name: "Merrymeeting Public Ramp", lat: 43.4772764, lng: -71.1794758, fee: "Free", note: "317 Merrymeeting Rd, New Durham." },
     ];
 
     // ----- App state -----
