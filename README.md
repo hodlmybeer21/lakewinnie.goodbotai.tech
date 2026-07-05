@@ -9,6 +9,8 @@ A lightweight, no-backend web app for navigating Lake Winnipesaukee from your ph
 - **Public boat launches** — all 18+ NH launches with fees, parking notes, and restrictions
 - **Crowdsourced buoys** — tap a button, tap the map, log any buoy you see while boating. Saves to your phone's localStorage. Export as JSON anytime.
 - **Crowdsourced hazards** — rocks, shoals, shallow areas, strong currents. Same workflow as buoys: tap 📍 → tap map → pick "Hazard". Red triangle on the map.
+- **Crowdsourced depth soundings** — log a depth from your depth finder at your current location. Color-coded markers. Builds up a community dataset over time.
+- **NH GRANIT bathymetry (reference)** — bathymetric contours and depth bands from NH GRANIT/NHDES. Off by default. Always carries a disclaimer: "NOT for navigation — verify on the Bizer chart." Cached locally so it only downloads once per device.
 - **Trip logging** — every GPS run auto-records a dotted-line trail on the map. When you stop, you get a popup with distance, duration, max speed, and the chance to name it. Past trips stay on the map (toggleable) and can be exported as GPX to open in Google Earth, Garmin BaseCamp, etc.
 
 ## What it does NOT do (yet)
@@ -81,7 +83,8 @@ Buoys are circles, hazards are red triangles. Both are stored in your phone's `l
 
 - **Public launches:** [Roche Realty Lake Winnipesaukee launch list](https://rocherealty.com/boat-launches/), cross-checked with [lakewinnipesaukee.net](http://lakewinnipesaukee.net/boating/boat-launches-lakes-region-nh/)
 - **No-wake zones:** No layer in this build. Removed 2026-07-05 (was inaccurate).
-- **Buoys & hazards:** Community-contributed. Authoritative source: Bizer chart (paper) + NH Marine Patrol buoys on the water.
+- **Buoys, hazards, & depth soundings:** Community-contributed. Authoritative source: Bizer chart (paper) + NH Marine Patrol buoys on the water.
+- **NH GRANIT bathymetry:** NH Department of Environmental Services, via NH GRANIT. **Not for navigation** — see the NHDES license. The app shows a disclaimer banner whenever this layer is on and repeats it in every popup.
 
 ## Roadmap
 
