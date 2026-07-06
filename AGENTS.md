@@ -5,7 +5,7 @@
 
 ## TL;DR
 
-A single-file static web app (`index.html`, ~62 KB) that gives Winnipesaukee boaters a Garmin-HUD-style map with live GPS, crowdsourced buoys/hazards, NH GRANIT bathymetry (low-confidence reference), and GPS trip logging with GPX export. No backend. Auto-deploys to Vercel on push to `main`.
+A single-file static web app (`index.html`, ~93 KB) that gives Winnipesaukee boaters a Garmin-HUD-style map with live GPS, crowdsourced buoys/hazards, NH GRANIT bathymetry (low-confidence reference), marina & fuel-dock locator, bridges & clearance (off by default), a "Where am I" rescue helper, and GPS trip logging with GPX export. No backend. Auto-deploys to Vercel on push to `main`.
 
 ## Identity
 
@@ -42,6 +42,8 @@ winni-map/
 6. **Crowdsourced depth soundings** — `localStorage.winniDepths`. **DORMANT in current prod** (modal button + layer checkbox removed in commit `4b9a260` but the helpers + storage are still in the code, ready to re-enable). See "Toggling depths on/off" below.
 7. **NH GRANIT bathymetry** — `layers.bathyLines` + `layers.bathyBands`. Off by default. Loads from `nhgeodata.unh.edu` and `granit24a.sr.unh.edu` (CORS-friendly for the deployed origin). Cached in localStorage with 30-day TTL. Yellow disclaimer banner shown while layer is on; every popup repeats "NOT for navigation — verify on the Bizer chart."
 8. **Trip logging** — `localStorage.winniTrips`. Every GPS run auto-records a teal dotted trail behind the boat, throttled to ~3s or 5m of movement. On Stop GPS, prompts to name the trip. Past trips exportable as GPX.
+9. **Bridges & clearance** — `layers.bridges` + `BRIDGES` array. Off by default (per AGENTS.md rule #1). Rotated-diamond icon with a red "low clearance" bar on top, suggesting respect for vertical clearance. Each popup carries a `source` citation, the typical clearance in feet, and a link to the USGS Lake Winnipesaukee real-time gage so boaters can verify the day's actual water level. v1 seeds 3 fixed/draw bridges; expand via verified PR (NH DOT bridge inventory, Bizer chart clearance table).
+10. **🆘 Where-am-I rescue helper** — `showRescueModal()`. Tapping the new 🆘 action-bar button opens a modal with the current lat/lng (copyable), nearest public launch via haversine on the `LAUNCHES[]` array, nearest marina via haversine on the `MARINAS[]` array, a pre-formatted SMS-ready message, and one-tap `tel:` links to 911 and NH Marine Patrol (603-293-2037). Falls back to lake center if GPS not acquired, falls back to select-and-copy if the Clipboard API is blocked.
 
 ## Workflow for adding a new layer (the pattern)
 
@@ -143,6 +145,11 @@ cd /root/.openclaw/workspace/projects/winni-map && git status --short && git log
 
 ## Recent commit history (for context)
 
+- `2f3ec47` — Add Where-am-I rescue helper + Bridges & clearance layer
+- `5a3a21d` — Empty-commit wake after rollback to ce4d266 (reverts the seed-buoys scaffold)
+- `080923d` — Document seeded-buoy infrastructure in AGENTS.md (ROLLED BACK in 5a3a21d; retain commit for reflog)
+- `d5ddb29` — Merge feature/seeded-mp-buoys (reverted in 5a3a21d)
+- `b878cd3` — Add NH MP reference (seed) buoy layer scaffold (reverted in 5a3a21d)
 - `592134c` — empty commit to retrigger Vercel deploy after force-rollback
 - `4b9a260` — Remove depth soundings option (kept layer + helpers dormant)
 - `a75ae46` — Add NH GRANIT bathymetry + depth soundings
