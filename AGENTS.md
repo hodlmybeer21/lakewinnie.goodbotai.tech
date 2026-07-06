@@ -15,7 +15,7 @@ A single-file static web app (`index.html`, ~93 KB) that gives Winnipesaukee boa
 | Owner    | Tyler (`HodlMyBeer12`, telegram 8511611117)                          |
 | Repo     | `github.com/hodlmybeer21/lakewinnie.goodbotai.tech`                  |
 | Host     | Vercel (auto-deploy on push to `main`)                               |
-| URL      | https://lakewinnie.goodbotai.tech                                    |
+| URL      | https://lakewinni.goodbotai.tech                                    |
 | Build    | None — single static `index.html`, served as-is                      |
 | Stack    | Leaflet 1.9.4 (CDN) + OpenStreetMap tiles + vanilla JS + localStorage |
 
@@ -83,10 +83,10 @@ These were all hard-won. Don't re-make any of these mistakes.
 
 5. **NH GRANIT endpoints require the deployed origin for CORS.** They `vary: Origin` and `access-control-allow-origin` returns the request origin. If Tyler ever changes the deploy URL, the bathymetry fetch will fail with a CORS error. CORS test:
    ```bash
-   curl -sI -H 'Origin: https://lakewinnie.goodbotai.tech' \
+   curl -sI -H 'Origin: https://lakewinni.goodbotai.tech' \
      'https://nhgeodata.unh.edu/hosting/rest/services/Hosted/EDP_Bathymetry_Lakes/FeatureServer/0/query?where=1=1&f=json&returnCountOnly=true'
    ```
-   Should return HTTP 200 with `access-control-allow-origin: https://lakewinnie.goodbotai.tech`.
+   Should return HTTP 200 with `access-control-allow-origin: https://lakewinni.goodbotai.tech`.
 
 ## Toggling depths on/off
 
@@ -109,7 +109,7 @@ cd /root/.openclaw/workspace/projects/winni-map
 git reset --hard <old-sha>
 git push --force-with-lease origin main
 # Then verify Vercel picked it up:
-curl -sI "https://lakewinnie.goodbotai.tech/?cb=$(date +%s)" | grep -i age
+curl -sI "https://lakewinni.goodbotai.tech/?cb=$(date +%s)" | grep -i age
 # Should show 'age: 0' and 'x-vercel-cache: MISS'.
 # If not, do an empty commit to wake Vercel up:
 git commit --allow-empty -m "Re-trigger Vercel deploy"
@@ -124,11 +124,11 @@ cd /root/.openclaw/workspace/projects/winni-map
 node -e "const html=require('fs').readFileSync('index.html','utf8');const m=html.match(/<script>([\s\S]*?)<\/script>/g);const code=m[m.length-1].replace(/^<script>/,'').replace(/<\/script>$/,'');try{new Function(code);console.log('JS OK,',code.length,'bytes')}catch(e){console.log('ERR:',e.message)}"
 
 # Verify live deploy is fresh + serves new code
-curl -sI "https://lakewinnie.goodbotai.tech/?cb=$(date +%s)" | grep -iE "age|x-vercel-cache"
-curl -s  "https://lakewinnie.goodbotai.tech/?cb=$(date +%s)" | grep -c "loadNHGranitBathy"
+curl -sI "https://lakewinni.goodbotai.tech/?cb=$(date +%s)" | grep -iE "age|x-vercel-cache"
+curl -s  "https://lakewinni.goodbotai.tech/?cb=$(date +%s)" | grep -c "loadNHGranitBathy"
 
 # Test NH GRANIT CORS
-curl -sI -H 'Origin: https://lakewinnie.goodbotai.tech' \
+curl -sI -H 'Origin: https://lakewinni.goodbotai.tech' \
   'https://nhgeodata.unh.edu/hosting/rest/services/Hosted/EDP_Bathymetry_Lakes/FeatureServer/0/query?where=1=1&f=json&returnCountOnly=true'
 
 # Check git state

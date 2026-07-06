@@ -2,7 +2,7 @@
 
 A lightweight, no-backend web app for navigating Lake Winnipesaukee from your phone's GPS — like a Garmin HUD, but in Chrome.
 
-Live: **https://lakewinnie.goodbotai.tech**
+Live: **https://lakewinni.goodbotai.tech**
 
 ## What it does
 
@@ -35,7 +35,7 @@ winni-map/
 ## How to use it
 
 ### Open on your phone
-1. Open **https://lakewinnie.goodbotai.tech** in Chrome or Safari
+1. Open **https://lakewinni.goodbotai.tech** in Chrome or Safari
 2. Tap **Start GPS** and grant location permission
 3. Your dot will start updating on the map
 
