@@ -147,6 +147,8 @@ cd /root/.openclaw/workspace/projects/winni-map && git status --short && git log
 
 - `a85040e` — Collapse layers panel into a chip by default
 - `2f3ec47` — Add Where-am-I rescue helper + Bridges & clearance layer
+- `63c2b67` — Merge feature/fix-overlap (HUD compass + zoom controls)
+- `d0d4ff9` — Fix HUD compass / Leaflet zoom controls overlapping content
 - `5a3a21d` — Empty-commit wake after rollback to ce4d266 (reverts the seed-buoys scaffold)
 - `080923d` — Document seeded-buoy infrastructure in AGENTS.md (ROLLED BACK in 5a3a21d; retain commit for reflog)
 - `d5ddb29` — Merge feature/seeded-mp-buoys (reverted in 5a3a21d)
