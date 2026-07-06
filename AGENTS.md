@@ -147,6 +147,8 @@ cd /root/.openclaw/workspace/projects/winni-map && git status --short && git log
 
 - `a85040e` — Collapse layers panel into a chip by default
 - `2f3ec47` — Add Where-am-I rescue helper + Bridges & clearance layer
+- `5cacb66` — Merge feature/compact-hud (compact bottom-left HUD card)
+- `8a8d43e` — Compact bottom-left HUD: cut height ~50% while keeping all data
 - `63c2b67` — Merge feature/fix-overlap (HUD compass + zoom controls)
 - `d0d4ff9` — Fix HUD compass / Leaflet zoom controls overlapping content
 - `5a3a21d` — Empty-commit wake after rollback to ce4d266 (reverts the seed-buoys scaffold)
