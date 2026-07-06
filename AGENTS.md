@@ -145,6 +145,7 @@ cd /root/.openclaw/workspace/projects/winni-map && git status --short && git log
 
 ## Recent commit history (for context)
 
+- `d925c6b` — Add Pier 19 (Tuftonboro) to marinas & fuel-dock layer (225 GJW Hwy, gas + groceries)
 - `a85040e` — Collapse layers panel into a chip by default
 - `2f3ec47` — Add Where-am-I rescue helper + Bridges & clearance layer
 - `5cacb66` — Merge feature/compact-hud (compact bottom-left HUD card)
