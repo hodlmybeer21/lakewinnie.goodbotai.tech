@@ -417,6 +417,46 @@
     .poi-cat-chip.restaurant { background: #fadbd8; color: #922b21; }
     .poi-cat-chip.hotel     { background: #e8daef; color: #6c3483; }
     .poi-cat-chip.grocery   { background: #d5f5e3; color: #1e8449; }
+    .safety-banner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      background: #fdecea !important;
+      color: #7a1f1a !important;
+      border: 1px solid #f5c2c0 !important;
+      border-left: 4px solid #c0392b !important;
+      border-radius: 10px;
+      padding: 10px 14px !important;
+      top: 70px !important;
+      left: 16px !important;
+      max-width: calc(100vw - 220px) !important;
+      font-size: 13px;
+      line-height: 1.4;
+      z-index: 999;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .safety-banner strong { color: #7a1f1a; }
+    .safety-banner .btn-primary {
+      background: #c0392b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .safety-banner .btn-primary:hover { background: #a93226; }
+    @media (max-width: 600px) {
+      .safety-banner {
+        left: 8px !important;
+        right: 8px !important;
+        max-width: calc(100vw - 16px) !important;
+        font-size: 12px;
+        top: 64px !important;
+      }
+    }
     .bathy-banner {
       background: #fff3cd !important;
       color: #856404 !important;
@@ -630,6 +670,11 @@
     <button class="icon-btn" id="routeFinishBtn" title="Finish route">✓</button>
   </div>
   <div id="bathyBanner" class="hud bathy-banner" style="display:none;">⚠️ NH Bathymetry — reference only, NOT for navigation.</div>
+  <div id="safetyDisclaimer" class="safety-banner hud" style="display:none;">
+    <strong>⚠️ Recreation aid — not for navigation.</strong>
+    <span>Crowdsourced buoys and channels <strong>may be missing, mislocated, or seasonal</strong>. Always confirm visually against official NH Marine Patrol buoys and nautical charts.</span>
+    <button id="safetyDisclaimerDismiss" class="btn btn-primary">Got it</button>
+  </div>
 
   <div id="layers" class="hud collapsed">
     <div id="layers-header" title="Layers">
@@ -2472,6 +2517,26 @@
       pendingBuoyLatLng = null;
     };
 
+    // ----- Safety disclaimer (one-time on first visit) -----
+    const SAFETY_DISCLAIMER_FLAG = 'winniSafetyDisclaimerAcked';
+    function maybeShowSafetyDisclaimer() {
+      try {
+        if (localStorage.getItem(SAFETY_DISCLAIMER_FLAG) === '1') return;
+      } catch (_) { return; }
+      document.getElementById('safetyDisclaimer').style.display = 'flex';
+    }
+    function dismissSafetyDisclaimer() {
+      try { localStorage.setItem(SAFETY_DISCLAIMER_FLAG, '1'); } catch (_) {}
+      const el = document.getElementById('safetyDisclaimer');
+      if (el) el.style.display = 'none';
+    }
+    function resetSafetyDisclaimer() {
+      try { localStorage.removeItem(SAFETY_DISCLAIMER_FLAG); } catch (_) {}
+      maybeShowSafetyDisclaimer();
+    }
+    window.dismissSafetyDisclaimer = dismissSafetyDisclaimer;
+    window.resetSafetyDisclaimer = resetSafetyDisclaimer;
+
     function showPoiModal() {
       const modal = document.getElementById('modal');
       const body = document.getElementById('modalBody');
@@ -3557,6 +3622,9 @@ ${tracks}
             <strong>Bridges & clearance:</strong> ${BRIDGES.length} (off by default).<br>
             Use 💾 to export your data as JSON, or 🛶 to export trips as GPX.
           </p>
+          <p style="font-size:12px;color:#666;margin-top:12px;">
+            <a href="#" onclick="resetSafetyDisclaimer(); cancelModal(); return false;">🔄 Re-show safety disclaimer</a>
+          </p>
         `;
         actions.innerHTML = `<button class="btn btn-primary" onclick="cancelModal()">Close</button>`;
         modal.classList.add('show');
@@ -3639,6 +3707,10 @@ ${tracks}
         // Re-render any open bridge popups so the computed clearance appears.
         rebuildBridgeLayer();
       }).catch(() => {});
+      // First-visit safety disclaimer (persists in localStorage once acked).
+      maybeShowSafetyDisclaimer();
+      document.getElementById('safetyDisclaimerDismiss')
+        .addEventListener('click', dismissSafetyDisclaimer);
     });
   </script>
 </body>
