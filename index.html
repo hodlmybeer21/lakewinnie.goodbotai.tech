@@ -623,7 +623,12 @@
   </div>
 
   <div id="buoyBanner" class="hud">📍 Tap the map to place a buoy or hazard</div>
-  <div id="routeBanner" class="hud" style="display:none;">✏️ Drag your finger to sketch a route — tap to start a new one</div>
+  <div id="routeBanner" class="hud" style="display:none;">✏️ Tap the map to drop waypoints — ✓ Finish to commit, ↶ Undo last point</div>
+  <div id="routeActionBar" class="hud" style="display:none;">
+    <span id="routePointLabel"><span id="routePointCount">0</span> points</span>
+    <button class="icon-btn" id="routeUndoBtn" title="Undo last waypoint">↶</button>
+    <button class="icon-btn" id="routeFinishBtn" title="Finish route">✓</button>
+  </div>
   <div id="bathyBanner" class="hud bathy-banner" style="display:none;">⚠️ NH Bathymetry — reference only, NOT for navigation.</div>
 
   <div id="layers" class="hud collapsed">
@@ -2334,9 +2339,11 @@
 
     function onMapClick(e) {
       if (routeDrawMode) {
-        // Click commits the current route (if any) and starts a new one at the click point.
-        finishRoute();
-        startRouteAt(e.latlng);
+        // Tap-to-create: each tap drops a waypoint on the current route.
+        // If no route is in progress, start one. Otherwise extend.
+        if (!drawingRoute) startRouteAt(e.latlng);
+        else extendRouteAt(e.latlng);
+        updateRouteActionBar();
         return;
       }
       if (!buoyAddMode) return;
@@ -2613,6 +2620,7 @@
       if (map.boxZoom) map.boxZoom.disable();
       if (map.keyboard) map.keyboard.disable();
       if (typeof exitBuoyMode === 'function') exitBuoyMode();
+      updateRouteActionBar();
     }
 
     function exitRouteDrawMode() {
@@ -2628,6 +2636,7 @@
       if (map.boxZoom) map.boxZoom.enable();
       if (map.keyboard) map.keyboard.enable();
       finishRoute();
+      updateRouteActionBar();
     }
 
     function finishRoute() {
@@ -2666,9 +2675,15 @@
       };
       drawingRoute.line.addTo(map);
       // Dot at the start
+      addRouteWaypointMarker(latlng);
+    }
+
+    function addRouteWaypointMarker(latlng) {
+      if (!drawingRoute) return;
       const dot = L.circleMarker(latlng, {
-        radius: 4,
-        color: '#1e6fd9',
+        radius: 5,
+        color: '#ffffff',
+        weight: 2,
         fillColor: '#1e6fd9',
         fillOpacity: 1,
         interactive: false,
@@ -2676,18 +2691,34 @@
       drawingRoute.markers.push(dot);
     }
 
-    function extendRouteTo(latlng) {
+    function extendRouteAt(latlng) {
       if (!drawingRoute) return;
       const last = drawingRoute.points[drawingRoute.points.length - 1];
-      // throttle: skip points too close together (touch/finger can be jittery)
+      // throttle: skip waypoints that are too close together
       if (last) {
         const dx = (latlng.lng - last.lng) * 111320 * Math.cos(last.lat * Math.PI / 180);
         const dy = (latlng.lat - last.lat) * 111320;
         const d = Math.sqrt(dx*dx + dy*dy);
-        if (d < 3) return; // <3m, ignore
+        if (d < 5) return; // <5m, ignore (anti-double-tap)
       }
       drawingRoute.points.push(latlng);
       drawingRoute.line.setLatLngs(drawingRoute.points.map(p => [p.lat, p.lng]));
+      addRouteWaypointMarker(latlng);
+      updateRouteActionBar();
+    }
+
+    function updateRouteActionBar() {
+      const bar = document.getElementById('routeActionBar');
+      if (!bar) return;
+      if (routeDrawMode && drawingRoute && drawingRoute.points.length >= 1) {
+        bar.style.display = 'block';
+        document.getElementById('routePointCount').textContent = drawingRoute.points.length;
+      } else if (routeDrawMode) {
+        bar.style.display = 'block';
+        document.getElementById('routePointCount').textContent = '0';
+      } else {
+        bar.style.display = 'none';
+      }
     }
 
     // ----- Buoy add mode -----
@@ -3368,27 +3399,23 @@ ${tracks}
         else enterRouteDrawMode();
       });
 
-      // Finger-drag drawing: mousedown starts a route, mousemove extends,
-      // mouseup commits (if it traveled) or discards (if it was a tap).
-      map.on('mousedown', e => {
-        if (!routeDrawMode) return;
-        if (e.originalEvent && e.originalEvent.button !== 0) return; // left-click only
-        // If a previous route is in progress, finish it first
+      document.getElementById('routeFinishBtn').addEventListener('click', () => {
+        // Commit the in-progress route and stay in draw mode for another.
         finishRoute();
-        startRouteAt(e.latlng);
+        updateRouteActionBar();
       });
-      map.on('mousemove', e => {
-        if (!routeDrawMode || !drawingRoute) return;
-        // Only extend while the primary button is held
-        if (e.originalEvent && e.originalEvent.buttons !== 1) return;
-        extendRouteTo(e.latlng);
-      });
-      map.on('mouseup', e => {
-        if (!routeDrawMode || !drawingRoute) return;
-        if (e.originalEvent && e.originalEvent.button !== 0) return;
-        // If mouseup happens at the same spot (a tap, not a drag), keep the route
-        // open so the user can drag further; committing only happens on the next
-        // click or when exiting draw mode.
+      document.getElementById('routeUndoBtn').addEventListener('click', () => {
+        if (!drawingRoute || drawingRoute.points.length === 0) return;
+        drawingRoute.points.pop();
+        // remove the most recent marker
+        const lastMarker = drawingRoute.markers.pop();
+        if (lastMarker) map.removeLayer(lastMarker);
+        if (drawingRoute.points.length === 0) {
+          map.removeLayer(drawingRoute.line);
+        } else {
+          drawingRoute.line.setLatLngs(drawingRoute.points.map(p => [p.lat, p.lng]));
+        }
+        updateRouteActionBar();
       });
 
       document.getElementById('exportBtn').addEventListener('click', () => {
