@@ -1604,15 +1604,38 @@
     ];
 
     function seedBuoysIfNeeded() {
-      if (!Array.isArray(BUOY_SEED) || BUOY_SEED.length === 0) return;
       if (localStorage.getItem(BUOY_SEED_FLAG_KEY) === BUOY_SEED_VERSION) return;
-      const existing = new Set(storedBuoys.map(b => b.id));
-      BUOY_SEED.forEach(b => {
-        if (existing.has(b.id)) return; // don't clobber user edits
-        storedBuoys.push({ ...b });
-      });
-      saveBuoys();
-      try { localStorage.setItem(BUOY_SEED_FLAG_KEY, BUOY_SEED_VERSION); } catch (_) {}
+      const applySeed = (seed) => {
+        if (!Array.isArray(seed) || seed.length === 0) return;
+        const existing = new Set(storedBuoys.map(b => b.id));
+        seed.forEach(b => {
+          if (existing.has(b.id)) return; // don't clobber user edits
+          storedBuoys.push({ ...b });
+        });
+        saveBuoys();
+      };
+      // Apply inlined seed first (useful when fetch is unavailable, e.g. file://)
+      applySeed(BUOY_SEED);
+      // Then try to fetch the JSON ship in /data and merge any additional buoys.
+      // If fetch fails (network/CORS), fall back to the inline seed only.
+      fetch('data/winni-buoys.json', { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(seed => {
+          if (!Array.isArray(seed) || seed.length === 0) return;
+          const before = storedBuoys.length;
+          applySeed(seed);
+          if (storedBuoys.length > before) renderBuoyLayer();
+          try { localStorage.setItem(BUOY_SEED_FLAG_KEY, BUOY_SEED_VERSION); } catch (_) {}
+        })
+        .catch(() => {
+          // Network blip — don't mark seeded; next visit will retry.
+        });
+    }
+
+    function renderBuoyLayer() {
+      // Re-render the buoys layer from storedBuoys (used after async seed).
+      layers.buoys.clearLayers();
+      storedBuoys.forEach(b => addBuoyToLayer(b));
     }
 
     // Directory-seeded POIs. Coordinates come from the nearest entry in
