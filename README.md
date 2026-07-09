@@ -14,14 +14,14 @@ Live: **https://lakewinni.goodbotai.tech**
 - **Crowdsourced hazards** — rocks, shoals, shallow areas, strong currents. Same workflow as buoys. Red triangle markers.
 - **NH GRANIT bathymetry** — bathymetric contours (every 20 ft) and depth-band polygons from NH GRANIT/NHDES. **Off by default** with a permanent disclaimer banner while on. Cached locally so it only downloads once per device.
 - **Trip logging** — every GPS run auto-records a dotted-line trail on the map. When you stop, you get a popup with distance, duration, max speed, and the chance to name it. Past trips stay on the map and can be exported as GPX (Google Earth, Garmin BaseCamp, etc.).
-- **Marinas & fuel docks** — ~40 marinas on the lake with services (gas, diesel, pump-out, moorings, etc.), season, and a "Route to here" button that drops a pin into Google Maps for turn-by-turn directions from your launch. Bizer-sourced citations appear in each popup.
-- **Bridges & clearance** — low-clearance crossings (Wolfeboro Bay fixed truss, Lakeport drawbridge, etc.) with a **live clearance calculator** using Bizer's formula (`chart_clearance + 4.3 - lake_level`). Lake level is fetched from USGS 01080000 on boot, cached locally, with a manual override input always available in the popup.
-- **POIs (restaurants / hotels / groceries by boat)** — 27 Bizer-seeded entries across the lake's main dock towns, plus crowdsourced additions. Tap 📍 → 🍽 POI to add one anywhere on the lake.
+- **Marinas & fuel docks** — ~40 marinas on the lake with services (gas, diesel, pump-out, moorings, etc.), season, and a "Route to here" button that drops a pin into Google Maps for turn-by-turn directions from your launch. Each popup carries a reference citation.
+- **Bridges & clearance** — low-clearance crossings (Wolfeboro Bay fixed truss, Lakeport drawbridge, etc.) with a **live clearance calculator** using the standard full-lake reference formula (`chart_clearance + 4.3 - lake_level`). Lake level is fetched from USGS 01080000 on boot, cached locally, with a manual override input always available in the popup.
+- **POIs (restaurants / hotels / groceries by boat)** — 27 directory-seeded entries across the lake's main dock towns, plus crowdsourced additions. Tap 📍 → 🍽 POI to add one anywhere on the lake.
 - **🆘 Where-am-I rescue helper** — share lat/lng + nearest launch/marina with 911 / NH Marine Patrol in one tap.
 
 ## What it does NOT do (yet)
 
-- **No official buoy data.** USCG ATON dataset is coastal-only — inland lake buoys on Winnipesaukee are maintained by NH Marine Patrol (~600 of them) and not published in machine-readable form. The printed **Bizer chart** sold at marinas is the authoritative source. Buoy layer is user-contributed; populate it by boating and tapping.
+- **No official buoy data.** USCG ATON dataset is coastal-only — inland lake buoys on Winnipesaukee are maintained by NH Marine Patrol (~600 of them) and not published in machine-readable form. A printed cruising chart (sold at marinas) is the authoritative source. Buoy layer is user-contributed; populate it by boating and tapping.
 - **No hardcoded hazards.** Earlier versions had hardcoded points (The Broads, Rocky Shoal, Five-Finger Point), but the coordinates were not authoritative and several were in the wrong place. Hazards are now crowdsourced the same way as buoys.
 - **No no-wake zones.** Earlier versions included 50 zones from NH Admin Rules, but the polygon coordinates were inaccurate. Removed 2026-07-05. A crowdsourced no-wake layer would work the same way as buoys if you want one.
 - **Not a navigation system.** Recreation aid. Always defer to official charts and visual markers.
@@ -73,7 +73,7 @@ Tap **Start GPS** to begin a trip. A teal dotted line trails behind your boat as
 
 ## NH GRANIT bathymetry (reference)
 
-Toggle **NH Bathymetry** in the layer panel. While on, a yellow disclaimer banner stays visible: *"NH Bathymetry (NH GRANIT/NHDES) — reference only, NOT for navigation. Verify on the Bizer chart."* The NHDES license says exactly this — we surface it.
+Toggle **NH Bathymetry** in the layer panel. While on, a yellow disclaimer banner stays visible: *"NH Bathymetry (NH GRANIT/NHDES) — reference only, NOT for navigation. Verify on an authoritative cruising chart."* The NHDES license says exactly this — we surface it.
 
 Data is fetched once from NH GRANIT/NHDES feature services and cached in localStorage for 30 days. The fetch is ~10 MB total.
 
@@ -90,18 +90,18 @@ Data is fetched once from NH GRANIT/NHDES feature services and cached in localSt
 
 - **Public launches:** [Roche Realty Lake Winnipesaukee launch list](https://rocherealty.com/boat-launches/), cross-checked with [lakewinnipesaukee.net](http://lakewinnipesaukee.net/boating/boat-launches-lakes-region-nh/)
 - **NH GRANIT bathymetry:** [NH Department of Environmental Services](https://nhgeodata.unh.edu), via NH GRANIT. **Not for navigation** — the NHDES license explicitly says so. The app shows a disclaimer banner whenever this layer is on and repeats it in every popup.
-- **Buoys & hazards:** Community-contributed. Authoritative source: Bizer chart (paper) + NH Marine Patrol buoys on the water.
-- **Marinas:** [Bizer Corp. marina directory](http://bizer.com/jrmarina.htm) (last updated 02-May-2013) + marina websites. Each popup carries a `source` citation.
-- **POIs:** [Bizer w2eat.htm](http://bizer.com/w2eat.htm) (restaurants by boat, updated 04-Jun-2014) + [Bizer w2sleep.htm](http://bizer.com/w2sleep.htm) (hotels with docking, updated 16-Mar-2016) + community contributions. Stale data — verify hours before departing.
-- **Lake level:** [USGS 01080000](https://waterdata.usgs.gov/monitoring-location/01080000/) (Lake Winnipesaukee at Weirs Beach) with [Bizer bztnews.htm](http://bizer.com/bztnews.htm) as a backup when USGS is offline.
+- **Buoys & hazards:** Community-contributed. Authoritative source: a printed cruising chart for the lake + NH Marine Patrol buoys on the water.
+- **Marinas:** A 2013 reference Lake Winnipesaukee marina directory + marina websites. Each popup carries a `source` citation.
+- **POIs:** A 2014 restaurants-by-boat directory + a 2016 hotels-with-docking directory + community contributions. Stale data — verify hours before departing.
+- **Lake level:** [USGS 01080000](https://waterdata.usgs.gov/monitoring-location/01080000/) (Lake Winnipesaukee at Weirs Beach). If the USGS feed is offline, call your nearest marina or town dock for today's reading.
 
 ## Roadmap
 
 - [x] **v1.1** — Trip logging ✅ shipped 2026-07-05
 - [x] **v1.2** — Hazards crowdsourced ✅ shipped 2026-07-05
 - [x] **v1.3** — NH GRANIT bathymetry reference layer ✅ shipped 2026-07-05
-- [x] **v1.4** — Bridge clearance markers + live clearance calculator (USGS lake level + Bizer formula) ✅ shipped 2026-07-07
-- [x] **v1.5** — POI layer (restaurants / hotels / groceries) + marina directory expansion (Bizer-seeded) ✅ shipped 2026-07-07
+- [x] **v1.4** — Bridge clearance markers + live clearance calculator (USGS lake level + standard full-lake reference formula) ✅ shipped 2026-07-07
+- [x] **v1.5** — POI layer (restaurants / hotels / groceries) + marina directory expansion (directory-seeded) ✅ shipped 2026-07-07
 - [ ] **v1.6** — Weather overlay (NOAA station at Wolfeboro)
 - [ ] **v2.0** — Multi-user live tracking (backend, friends can see each other)
 

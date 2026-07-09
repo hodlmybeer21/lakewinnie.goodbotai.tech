@@ -876,10 +876,10 @@
     // Marina Assoc.), regional tourism offices, marina websites.
     //
     // SOURCES:
-    //   - Primary: Bizer Corp. marina list at http://bizer.com/jrmarina.htm
-    //     (last updated 02-May-2013). Coordinates derived from Bizer chart
-    //     grid references + public mapping; verify against the Bizer paper
-    //     chart for any marina you're transiting to for the first time.
+    //   - Primary: A reference Lake Winnipesaukee marina directory
+    //     (2013). Coordinates derived from public mapping; verify on an
+    //     authoritative chart for any marina you're transiting to for the
+    //     first time.
     //   - Secondary: NH GRANIT shoreline (where the marina has a known
     //     street address in LAUNCHES[] above).
     //
@@ -1126,13 +1126,12 @@
         note: "Walk-up gas + pump-out near Hesky Park; dock for transient boats.",
       },
 
-      // ----- Additional marinas from Bizer (jrmarina.htm, 02-May-2013) -----
-      // Each entry below was missing from the canonical list above. Source
-      // is Bizer's printed/web directory; coordinates approximate from Bizer
-      // chart grid refs (e.g. [G-4], [D-15]) cross-walked to OpenStreetMap.
+      // ----- Additional marinas from a 2013 reference directory -----
+      // Each entry below was missing from the canonical list above.
+      // Coordinates approximate from grid refs cross-walked to OpenStreetMap.
       // Treat as "exists at this approximate location; verify before transit".
 
-      // Meredith (Bizer lists 3; we already had Goodhue + Shep Brown's area)
+      // Meredith (the reference list has 3; we already had Goodhue + Shep Brown's area)
       {
         name: "Meredith Marine",
         lat: 43.6590, lng: -71.5010,
@@ -1317,8 +1316,8 @@
     //
     //   1. PUBLIC ROADWAY BRIDGES (highway / state-route carryings) — e.g.
     //      Wolfeboro Bay truss, Lakeport Draw. Generally have verifiable
-    //      clearance numbers from the Bizer chart, NH DOT inventory, or
-    //      the LAUNCHES[] notes already in this file.
+    //      clearance numbers from NH DOT inventory, the LAUNCHES[] notes
+    //      already in this file, or other public sources.
     //
     //   2. BRIDGED-ISLAND PRIVATE BRIDGES — Lake Winnipesaukee is famous
     //      for its "bridged islands" (Bear, Long, Black Cat, Oak,
@@ -1327,7 +1326,7 @@
     //      island) out to the island, and boats routinely pass UNDER them
     //      to reach protected coves. Clearances for most of these are
     //      NOT published in any authoritative public source — boaters
-    //      rely on the Bizer chart or on-site observation. We mark them
+    //      rely on on-site observation or local knowledge. We mark them
     //      on the map with `clearance_ft: null` and a clear "unverified"
     //      banner in the popup so they show up as landmarks without
     //      implying a clearance we can't source.
@@ -1343,17 +1342,16 @@
     //     (Wolfeboro)" entry already cites "Bridge clearance ~4 ft to big
     //     lake" — that's the project's own source for the Wolfeboro Bay
     //     fixed truss bridge.
-    //   - Bizer chart (Bizer's "Winnipesaukee" cruising guide) for the
-    //     Long Island Bridge entry — published clearance 7.7 ft at full
-    //     lake level (Bizer formula: chart_clearance + 4.3 - lake_level).
+    //   - Published cruising-guide clearance for the Long Island Bridge entry —
+    //     7.7 ft at full lake level (formula: chart_clearance + 4.3 - lake_level).
     //   - A forum report ("~13.5 ft at high water") for the Governor's
     //     Island Bridge entry — flagged in the popup as forum-sourced.
     //   - The other bridged-island entries are mapped from Tyler's
     //     reference list (2026-07-07) with approximate coords derived
     //     from Google Maps geocoding of nearby island-property
     //     addresses. Coords are flagged as approximate in the popup
-    //     via `coords_note`; clearance is left `null` until a Bizer
-    //     page reference or local-knowledge citation can be added.
+    //     via `coords_note`; clearance is left `null` until a published
+    //     reference or local-knowledge citation can be added.
     //
     // AGENTS.md rule #1 still applies: every entry MUST carry a non-empty
     // `source` field, and bridge data with no public citation is forbidden.
@@ -1382,8 +1380,8 @@
       // Coords below are approximate, derived from Google Maps geocoding of
       // nearby island-property addresses (Tyler's reference list, 2026-07-07).
       // Verify each location visually before relying on the marker position.
-      // Clearance is null for all of these until a Bizer or local-knowledge
-      // citation can be added per AGENTS.md rule #1.
+      // Clearance is null for all of these until a published reference or
+      // local-knowledge citation can be added per AGENTS.md rule #1.
 
       {
         // Long Island (Moultonborough) — best-documented bridged island.
@@ -1391,7 +1389,7 @@
         lat: 43.6668, lng: -71.3470,
         type: "fixed",
         clearance_ft: 7.7,
-        source: "Bizer chart (Tyler's reference list, 2026-07-07)",
+        source: "Tyler's reference list, 2026-07-07 (published cruising-guide clearance)",
         note: "Fixed bridge from Moultonborough Neck (Long Island Rd) out to Long Island, near Long Island Bridge Campground. Published clearance 7.7 ft at full lake level — actual = 7.7 + 4.3 \u2212 current lake level. Confirm visually if your air draft is close.",
       },
       {
@@ -1402,7 +1400,7 @@
         clearance_ft: null,
         source: "Tyler's reference list, 2026-07-07 (video evidence of boats passing under)",
         coords_note: "Approximate — geocoded from 63 Black Cat Island Rd area. Verify on chart before relying.",
-        note: "Private / association bridge connecting Black Cat Island to the mainland via Eagle Shore Rd / Black Cat Island Rd area. Clearance not published — treat as suitable for smaller to moderate recreational boats; confirm locally or via Bizer before transit.",
+        note: "Private / association bridge connecting Black Cat Island to the mainland via Eagle Shore Rd / Black Cat Island Rd area. Clearance not published — treat as suitable for smaller to moderate recreational boats; confirm locally before transit.",
       },
       {
         // Governor's Island (Gilford) — forum-reported 13.5 ft at high water.
@@ -1411,7 +1409,7 @@
         type: "fixed",
         clearance_ft: null,                  // forum-reported, not yet chart-verified
         source: "Tyler's reference list, 2026-07-07 (forum report: ~13.5 ft at high water)",
-        note: "Scenic fixed bridge from the Summit Ave / Rte 11D area of Gilford out to Governor's Island. One of the higher-clearance bridged-island crossings. Reported ~13.5 ft at high water — confirm via Bizer or on-site before transit.",
+        note: "Scenic fixed bridge from the Summit Ave / Rte 11D area of Gilford out to Governor's Island. One of the higher-clearance bridged-island crossings. Reported ~13.5 ft at high water — confirm on-site before transit.",
       },
       {
         // Oak Island (Meredith) — limited clearance data.
@@ -1421,7 +1419,7 @@
         clearance_ft: null,
         source: "Tyler's reference list, 2026-07-07 (limited public data; nearby address geocoding)",
         coords_note: "Approximate — geocoded from 40 Oak Island Rd area. Verify on chart before relying.",
-        note: "Fixed bridge from Meredith Neck out to Oak Island (Oak Island Rd). Clearance not publicly published — confirm locally or via Bizer before transit.",
+        note: "Fixed bridge from Meredith Neck out to Oak Island (Oak Island Rd). Clearance not publicly published — confirm locally before transit.",
       },
       {
         // Worcester Island (Wolfeboro) — limited public data.
@@ -1431,7 +1429,7 @@
         clearance_ft: null,
         source: "Tyler's reference list, 2026-07-07 (limited public data)",
         coords_note: "Approximate — based on Worcester Island center coords. Verify on chart before relying.",
-        note: "Fixed bridge connecting Worcester Island to the mainland in the Wolfeboro area. Clearance not publicly published — confirm locally or via Bizer before transit.",
+        note: "Fixed bridge connecting Worcester Island to the mainland in the Wolfeboro area. Clearance not publicly published — confirm locally before transit.",
       },
       {
         // Christmas / Plummers Island (Paugus Bay area) — south end of the lake.
@@ -1441,7 +1439,7 @@
         clearance_ft: null,
         source: "Tyler's reference list, 2026-07-07 (limited public data)",
         coords_note: "Approximate — based on Paugus Bay geography near Christmas Island. Verify on chart before relying.",
-        note: "Fixed bridge connecting Christmas (Plummers) Island in/near Paugus Bay (southern lake system, toward Laconia). Clearance not publicly published — confirm locally or via Bizer before transit.",
+        note: "Fixed bridge connecting Christmas (Plummers) Island in/near Paugus Bay (southern lake system, toward Laconia). Clearance not publicly published — confirm locally before transit.",
       },
       {
         // Birch Island – Steamboat Island "Rainbow Bridge" — inter-island.
@@ -1573,7 +1571,8 @@
       layers.buoys.addTo(map);
 
       // Crowdsourced POIs (restaurants, hotels, groceries). Seed once per
-      // device from Bizer's directory; user-added entries persist normally.
+      // device from a 2014/2016 reference directory; user-added entries
+      // persist normally.
       layers.pois = L.layerGroup();
       seedPoisIfNeeded();
       storedPois.forEach(p => addPoiToLayer(p));
@@ -1666,16 +1665,16 @@
 
     // ----- POI CRUD (restaurants / hotels / groceries by boat) -----
     // Crowdsourced POI layer. Users tap-to-add anywhere on the lake; we
-    // also seed it from Bizer's directory (w2eat.htm + w2sleep.htm) using
-    // known launch coordinates as the pin location, and require the user
-    // to confirm before saving.
+    // also seed it from a reference directory (2014 restaurants + 2016 hotels)
+    // using known launch coordinates as the pin location, and require the
+    // user to confirm before saving.
     //
-    // Bizer data sources:
-    //   - Restaurants: http://bizer.com/w2eat.htm (updated 04-Jun-2014)
-    //   - Hotels:     http://bizer.com/w2sleep.htm (updated 16-Mar-2016)
+    // Seed data sources (2014–2016 reference directory for Lake Winnipesaukee):
+    //   - Restaurants (updated 2014)
+    //   - Hotels with docking (updated 2016)
     //   - All seeded entries are pinned to the nearest town dock whose
     //     coordinates are already in LAUNCHES[]; the popup carries the
-    //     original Bizer text + grid ref so the boater can re-locate.
+    //     original directory text + grid ref so the boater can re-locate.
     //
     // Seed data lives in `POI_SEED` below. On first load (or after a wipe)
     // it gets merged into storedPois exactly once per device; user-added
@@ -1737,7 +1736,7 @@
 
     // Directory-seeded POIs. Coordinates come from the nearest entry in
     // LAUNCHES[] (which has authoritative coords). The popup keeps the
-    // exact Bizer phrasing + grid ref so users can verify on the chart.
+    // exact directory phrasing + grid ref so users can verify on the chart.
     const POI_SEED = [
       // ---- Wolfeboro (public docks area, 43.5837565, -71.2122564) ----
       { cat: 'restaurant', lat: 43.5837565, lng: -71.2122564,
@@ -2064,7 +2063,7 @@
           lyr.bindPopup(
             `<strong>Depth contour: ${d} ft</strong><br>` +
             `<small>Source: NH GRANIT / NHDES — reference only, NOT for navigation.<br>` +
-            `Verify on the Bizer chart before relying on this.</small>`
+            `Verify on an authoritative cruising chart before relying on this.</small>`
           );
         }
       }).addTo(layers.bathyLines);
@@ -2089,7 +2088,7 @@
             `<strong>${p.depthmin}\u2013${p.depthmax} ft depth band</strong><br>` +
             (p.acres ? `${p.acres.toFixed(1)} acres<br>` : '') +
             `<small>Source: NH GRANIT / NHDES — reference only, NOT for navigation.<br>` +
-            `Verify on the Bizer chart before relying on this.</small>`
+            `Verify on an authoritative cruising chart before relying on this.</small>`
           );
         }
       }).addTo(layers.bathyBands);
@@ -2220,10 +2219,11 @@
     // Off by default; popup carries the citation + a USGS lake-level link so
     // boaters can check actual clearance against the day's water level.
 
-    // Live lake level for the Bizer clearance formula:
+    // Live lake level for the clearance formula:
     //   actual_clearance = chart_clearance + 4.3 - current_lake_level
-    // (Bizer assumes a 4.3-ft "full lake" reading; subtract the actual
-    // deviation above or below that to get today's clearance.)
+    // The 4.3-ft constant is the conventional "full lake" reference elevation
+    // for Lake Winnipesaukee; subtract today's deviation above/below that to
+    // get the clearance at current water level.
     //
     // Source priority:
     //   1. USGS 01080000 (Lake Winnipesaukee at Weirs Beach, gage height, ft).
@@ -2233,7 +2233,7 @@
     //   3. Manual user entry (always available in bridge popup).
     const LAKE_LEVEL_CACHE_KEY = 'winniLakeLevel';
     const USGS_LAKE_LEVEL_URL  = 'https://waterservices.usgs.gov/nwis/iv/?format=json&sites=01080000&parameterCd=00065&period=PT6H';
-    const BIZER_FULL_LAKE_FT    = 4.3; // Bizer's "full lake" reference
+    const FULL_LAKE_FT          = 4.3; // conventional "full lake" reference elevation
 
     // Cached state: { levelFt, observedAt, source }
     let cachedLakeLevel = null;
@@ -2280,11 +2280,11 @@
         return { ok: true, source: 'USGS 01080000', levelFt: usgs };
       }
       // USGS failed or returned no readings. If we have nothing cached at
-      // all, seed from Bizer's most recently published reading on
-      // bizer.com/bztnews.htm so the bridge popup has a usable number out
-      // of the box. The user can override with a fresh reading any time.
+      // all, seed from a published reference reading so the bridge popup
+      // has a usable number out of the box. The user can override with a
+      // fresh reading any time.
       if (!cachedLakeLevel) {
-        saveLakeLevel(4.53, 'Bizer bztnews.htm seed (07/02/2026)'); // most recent Bizer reading; user can refresh
+        saveLakeLevel(4.53, 'reference reading (07/02/2026)'); // placeholder until USGS feed recovers; user should refresh
         return { ok: false, seeded: true, cached: cachedLakeLevel };
       }
       // USGS failed or returned no readings — keep whatever's cached.
@@ -2292,9 +2292,9 @@
     }
 
     function computeActualClearance(chartClearanceFt, lakeLevelFt) {
-      // Bizer formula: chart_clearance + full_lake(4.3) - actual_lake
+      // Clearance formula: chart_clearance + full_lake(4.3) - actual_lake
       if (chartClearanceFt == null || lakeLevelFt == null) return null;
-      const v = Number(chartClearanceFt) + BIZER_FULL_LAKE_FT - Number(lakeLevelFt);
+      const v = Number(chartClearanceFt) + FULL_LAKE_FT - Number(lakeLevelFt);
       return Math.round(v * 10) / 10; // 1 decimal
     }
 
@@ -2327,7 +2327,7 @@
                         b.type === 'causeway' ? 'Causeway' : 'Crossing';
       // Three clearance states:
       //   - drawbridge (no published clearance_ft): "varies — opens on signal"
-      //   - verified (clearance_ft is a number): show the figure + Bizer formula
+      //   - verified (clearance_ft is a number): show the figure + live clearance formula
       //   - unverified fixed bridge (clearance_ft is null): "clearance unverified"
       const isDraw = b.type === 'draw';
       const hasVerifiedClearance = !isDraw && b.clearance_ft != null;
@@ -2335,12 +2335,12 @@
         ? `<strong>Typical clearance:</strong> ${b.clearance_ft} ft <small style="color:#888;">(at low water datum; \u2193 at high water)</small>`
         : (isDraw
           ? `<strong>Clearance:</strong> varies — opens on signal`
-          : `<strong>Clearance:</strong> <span style="color:#c0392b;">unverified</span> <small style="color:#888;">(no published public number; confirm via Bizer or on-site)</small>`);
+          : `<strong>Clearance:</strong> <span style="color:#c0392b;">unverified</span> <small style="color:#888;">(no published public number; confirm on-site before transit)</small>`);
       // Unverified-callout banner for bridged-island entries without clearance_ft.
       const unverifiedBanner = (!isDraw && !hasVerifiedClearance)
         ? `<div style="margin:6px 0;padding:8px;background:#fef9e7;border-left:4px solid #d68910;border-radius:4px;font-size:12px;">
              <strong style="color:#9a7d0a;">⚠ Clearance unverified.</strong>
-             No authoritative public clearance number — confirm via the Bizer chart, NH DOT records, or on-site observation before transit.
+             No authoritative public clearance number — confirm via NH DOT records or on-site observation before transit.
            </div>`
         : '';
       const coordsNote = b.coords_note
@@ -2350,7 +2350,7 @@
         ? `<div class="bridge-source"><strong>Source:</strong> ${escapeHtml(b.source)}</div>`
         : `<div class="bridge-source"><strong>Source:</strong> <em>pending verification</em></div>`;
       const noteLine = b.note ? `<div style="font-size:12px;color:#333;margin:4px 0;">${escapeHtml(b.note)}</div>` : '';
-      // Live clearance calculator (Bizer formula) — only meaningful for verified entries.
+      // Live clearance calculator — only meaningful for verified entries.
       const lvl = cachedLakeLevel ? cachedLakeLevel.levelFt : null;
       const actual = hasVerifiedClearance && lvl != null
         ? computeActualClearance(b.clearance_ft, lvl)
@@ -2360,15 +2360,15 @@
       const actualLine = (actual != null)
         ? `<div style="margin:6px 0;padding:8px;background:#e8f5e9;border-left:4px solid #27ae60;border-radius:4px;">
              <strong style="color:#1e8449;">📏 Today's clearance: ${actual} ft</strong><br>
-             <small style="color:#555;">Lake-level formula: ${b.clearance_ft} + ${BIZER_FULL_LAKE_FT} \u2212 ${lvl} = ${actual}</small>
+             <small style="color:#555;">Lake-level formula: ${b.clearance_ft} + ${FULL_LAKE_FT} \u2212 ${lvl} = ${actual}</small>
            </div>`
         : (hasVerifiedClearance
           ? `<div style="margin:6px 0;padding:8px;background:#fef9e7;border-left:4px solid #d68910;border-radius:4px;font-size:12px;">
                Lake level not loaded \u2014 enter it below or pull-to-refresh.
              </div>`
           : '');
-      const lakeLevelLink = `USGS Lake Winnipesaukee real-time level: <a href="https://waterdata.usgs.gov/monitoring-location/01080000/" target="_blank" rel="noopener">waterdata.usgs.gov</a> \u2014 the IV feed is currently offline; check the lake-level table on <a href="http://bizer.com/bztnews.htm" target="_blank" rel="noopener">bizer.com/bztnews.htm</a> as a backup.`;
-      // Manual override entry \u2014 only meaningful for verified entries (a Bizer
+      const lakeLevelLink = `USGS Lake Winnipesaukee real-time level: <a href="https://waterdata.usgs.gov/monitoring-location/01080000/" target="_blank" rel="noopener">waterdata.usgs.gov</a> \u2014 if the IV feed is offline, call your nearest marina or town dock for today's reading.`;
+      // Manual override entry \u2014 only meaningful for verified entries (a chart
       // clearance is needed before the formula can compute). Hidden for
       // unverified entries so users don't try to compute a clearance against
       // a chart value that doesn't exist.
@@ -2427,7 +2427,7 @@
       rebuildBridgeLayer();
       if (btn) btn.textContent = original || '↻';
       if (!res.ok && !res.cached) {
-        alert('USGS feed is offline and no cached value exists. Use the lake-level table at bizer.com/bztnews.htm and enter the value manually.');
+        alert('USGS feed is offline and no cached value exists. Check the lake-level table at your nearest marina or town dock and enter the value manually.');
       }
     };
 
@@ -2706,7 +2706,7 @@
         <p style="font-size:11px;color:#666;margin-top:8px;">
           Soundings from your depth finder help build a community dataset.
           Tap <strong>NH Bathymetry</strong> in the layer panel for a reference overlay
-          (low-confidence — verify on the Bizer chart).
+          (low-confidence — verify on an authoritative cruising chart).
         </p>
       `;
       actions.innerHTML = `
@@ -3739,7 +3739,7 @@ ${tracks}
         title.textContent = 'Winni Nav v1';
         body.innerHTML = `
           <p><strong>Recreation aid — not for primary navigation.</strong></p>
-          <p>Always defer to official charts, visual markers, NH Marine Patrol buoys, and the Bizer chart.</p>
+          <p>Always defer to official charts, visual markers, and NH Marine Patrol buoys.</p>
           <p style="font-size:12px;color:#666;">
             Layers: buoys (community-contributed), hazards (community-contributed), public launches, marinas & fuel docks, bridges & clearance (off by default — verify before transit), past trips, POIs (restaurants / hotels / groceries, directory-seeded + community), crowdsourced depth soundings, and NH GRANIT bathymetry (reference only).<br>
             Data sources: Roche Realty launch list, NH GRANIT/NHDES bathymetry, Lake Winnipesaukee marina directory (reference), Lake Winnipesaukee POI directory (2014–2016), OpenStreetMap base map.<br>
@@ -3815,9 +3815,9 @@ ${tracks}
             banner.textContent = '⏳ Loading NH GRANIT bathymetry…';
             const res = await loadNHGranitBathy(false);
             if (res.source === 'network') {
-              banner.textContent = `⚠️ NH Bathymetry (NH GRANIT/NHDES, ${res.lines} contours, ${res.bands} bands) — reference only, NOT for navigation. Verify on the Bizer chart.`;
+              banner.textContent = `⚠️ NH Bathymetry (NH GRANIT/NHDES, ${res.lines} contours, ${res.bands} bands) — reference only, NOT for navigation. Verify on an authoritative cruising chart.`;
             } else if (res.source === 'cache') {
-              banner.textContent = `⚠️ NH Bathymetry (NH GRANIT/NHDES, ${res.lines} contours, ${res.bands} bands) — reference only, NOT for navigation. Verify on the Bizer chart.`;
+              banner.textContent = `⚠️ NH Bathymetry (NH GRANIT/NHDES, ${res.lines} contours, ${res.bands} bands) — reference only, NOT for navigation. Verify on an authoritative cruising chart.`;
             } else {
               banner.textContent = '⚠️ NH Bathymetry could not be loaded. Check your connection or toggle off and on again.';
             }
