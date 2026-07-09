@@ -716,7 +716,7 @@
   </div>
 
   <div id="buoyBanner" class="hud">📍 Tap the map to place a buoy or hazard</div>
-  <div id="routeBanner" class="hud" style="display:none;">✏️ Tap the map to drop waypoints — ✓ Finish to commit, ↶ Undo last point</div>
+  <div id="routeBanner" class="hud" style="display:none;">✏️ Tap to drop a waypoint · drag to pan · ✓ Finish, ↶ Undo last</div>
   <div id="routeActionBar" class="hud" style="display:none;">
     <span id="routePointLabel"><span id="routePointCount">0</span> points</span>
     <button class="icon-btn" id="routeUndoBtn" title="Undo last waypoint">↶</button>
@@ -2822,10 +2822,9 @@
       document.getElementById('layerRoutes').checked = true;
       layers.routes.addTo(map);
       document.body.classList.add('route-cursor-active');
-      // Lock the map so finger drags draw the line instead of panning the view
-      if (map.dragging) map.dragging.disable();
-      if (map.touchZoom) map.touchZoom.disable();
-      if (map.doubleClickZoom) map.doubleClickZoom.disable();
+      // In draw mode: keep drawing interactive (tap-to-add waypoint), but allow
+      // finger-drag panning and pinch-zoom so users can extend long routes by
+      // panning between taps. Disable keyboard pan and scroll-wheel zoom only.
       if (map.scrollWheelZoom) map.scrollWheelZoom.disable();
       if (map.boxZoom) map.boxZoom.disable();
       if (map.keyboard) map.keyboard.disable();
@@ -2839,9 +2838,6 @@
       document.getElementById('routeBanner').style.display = 'none';
       document.body.classList.remove('route-cursor-active');
       // Re-enable map interaction
-      if (map.dragging) map.dragging.enable();
-      if (map.touchZoom) map.touchZoom.enable();
-      if (map.doubleClickZoom) map.doubleClickZoom.enable();
       if (map.scrollWheelZoom) map.scrollWheelZoom.enable();
       if (map.boxZoom) map.boxZoom.enable();
       if (map.keyboard) map.keyboard.enable();
