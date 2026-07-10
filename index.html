@@ -2959,6 +2959,16 @@ ${trkpts}
     }
 
     async function seedShippedRoutesIfNeeded() {
+      // Guard: layers.routes is created in initMap(). If initMap hasn't
+      // run yet (e.g. this function is called too early in boot), bail
+      // out cleanly instead of throwing on layers.routes.addTo(...).
+      // This used to happen on every page load when the function was
+      // invoked eagerly at script-load time before DOMContentLoaded.
+      if (!layers || !layers.routes) {
+        console.warn('seedShippedRoutesIfNeeded: layers.routes not ready, skipping');
+        return;
+      }
+
       // Render from cache immediately so the layer shows something on first paint,
       // even before the network fetch completes.
       const cached = getCachedShippedRoutes();
@@ -2993,7 +3003,14 @@ ${trkpts}
     }
 
     // Kick off the shipped-routes fetch (async, non-blocking).
-    seedShippedRoutesIfNeeded();
+    // Moved to DOMContentLoaded handler below — must run AFTER initMap()
+    // so layers.routes exists. Previously called eagerly at script-load
+    // time, which meant the cache-render path crashed on visit 2+ with
+    // 'Cannot read properties of undefined (reading "routes")'. Symptom:
+    // routes appeared on the first visit (no cache, network fetch ran
+    // async after initMap), then vanished on every subsequent visit
+    // (cache tried to render synchronously, threw, and the network
+    // fetch never started).
 
     function enterRouteDrawMode() {
       routeDrawMode = true;
@@ -4028,6 +4045,11 @@ ${tracks}
       maybeShowSafetyDisclaimer();
       document.getElementById('safetyDisclaimerDismiss')
         .addEventListener('click', dismissSafetyDisclaimer);
+
+      // Shipped-routes fetch. Must run after initMap() so layers.routes
+      // exists; was previously called eagerly at script-load time which
+      // crashed the cache-render path on visit 2+.
+      seedShippedRoutesIfNeeded();
     });
   </script>
 </body>

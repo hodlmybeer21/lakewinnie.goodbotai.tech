@@ -209,6 +209,8 @@ cd /root/.openclaw/workspace/projects/winni-map && git status --short && git log
 
 10. **All data layers start OFF on first visit (as of 2026-07-10).** Tyler wants first-time visitors to experience the layers one at a time. Don't re-add `checked` attributes to layer checkboxes or `.addTo(map)` calls in `initMap()`. Programmatic `checked = true` + `addTo(map)` IS allowed in user-triggered paths (saving a buoy, viewing a trip, entering route-draw mode, etc.) — the rule is only about the initial empty-map state. If you add a new layer, default it OFF. Only the base map (OSM tiles) and the always-on island orientation polygons render at boot.
 
+11. **`seedShippedRoutesIfNeeded()` MUST be called AFTER `initMap()` runs.** The cache-render path inside the function does `line.addTo(layers.routes)` synchronously, which throws if `layers.routes` is undefined. `initMap()` is what creates `layers.routes`. The function is currently invoked from inside the `DOMContentLoaded` handler in `wireUI()`'s neighborhood (search for `seedShippedRoutesIfNeeded();` near the bottom of the script). Do NOT move the call back to script-load time (before `DOMContentLoaded`) — it will break visit 2+ of the app with the symptom "routes appear on first visit, vanish on every subsequent visit". The function also has an internal guard (`if (!layers || !layers.routes) return;`) as a defense-in-depth check, but the proper fix is to keep the call after `initMap()`.
+
 ## Contact
 
 If you break something, Tyler prefers you:
