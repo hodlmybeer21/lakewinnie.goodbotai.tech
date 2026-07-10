@@ -2870,7 +2870,10 @@
     // with a version key so updates redeploy cleanly. Rendered in the SAME
     // `layers.routes` group but with a distinct visual (solid orange-red, no
     // dash, thinner) so users can tell shipped recommendations apart from
-    // personal scratch routes.
+    // personal scratch routes. No endpoint markers — those used to be green
+    // start / red end dots but competed visually with the ATON buoys
+    // (red nun / green can) and made the map confusingly colored. The
+    // polyline tap-popup still shows start/finish info when needed.
     const SHIPPED_ROUTES_VERSION = 1;
     const SHIPPED_ROUTES_KEY = 'winniShippedRoutesV1';
     const SHIPPED_ROUTES_FLAG_KEY = 'winniShippedRoutesSeedV1';
@@ -2905,37 +2908,23 @@
         dashArray: null,      // solid line for "official" routes
         interactive: true,
       });
-      // Detect closed loops (start and end within ~50m of each other):
-      // for these, suppress the redundant end marker — it would just
-      // overlap the start marker and clutter the map. Single green dot
-      // labels the loop's start/finish. Detection is geometry-based so
-      // it works whether the seed file flags `isLoop: true` or not.
+      // Detect closed loops (start and end within ~50m of each other).
+      // Kept as a property on `route` for future use (e.g. different
+      // tooltip text on the line). Currently informational only — we
+      // no longer render endpoint markers at all because they conflicted
+      // visually with the red/green ATON buoys in the buoys layer.
       const isLoop = latlngs.length >= 3 &&
         Math.abs(latlngs[0][0] - latlngs[latlngs.length - 1][0]) < 0.0005 &&
         Math.abs(latlngs[0][1] - latlngs[latlngs.length - 1][1]) < 0.0005;
-      // Endpoints as small markers so users can see start/finish at a glance.
-      const startMarker = L.circleMarker(latlngs[0], {
-        radius: 5, color: '#16a34a', weight: 2, fillColor: '#16a34a', fillOpacity: 1,
-      }).bindTooltip(isLoop
-        ? `Loop start/finish: ${route.short_label || route.label || 'Route ' + route.section}`
-        : `Start: ${route.short_label || route.label || 'Route ' + route.section}`,
-        { permanent: false });
-      let endMarker = null;
-      if (!isLoop) {
-        endMarker = L.circleMarker(latlngs[latlngs.length - 1], {
-          radius: 5, color: '#d94e1e', weight: 2, fillColor: '#d94e1e', fillOpacity: 1,
-        }).bindTooltip(`End: ${route.short_label || route.label || 'Route ' + route.section}`, { permanent: false });
-      }
       line.on('click', e => {
         L.DomEvent.stopPropagation(e);
         openShippedRouteModal(route);
       });
       line.addTo(layers.routes);
-      startMarker.addTo(layers.routes);
-      if (endMarker) endMarker.addTo(layers.routes);
       route._line = line;
-      route._startMarker = startMarker;
-      route._endMarker = endMarker;  // null for closed loops
+      route._startMarker = null;
+      route._endMarker = null;
+      route._isLoop = isLoop;
     }
 
     function openShippedRouteModal(route) {
