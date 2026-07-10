@@ -1689,7 +1689,7 @@
       grocery:    { label: 'Grocery / store', icon: '🛒', cls: 'grocery' },
     };
 
-    const POI_SEED_VERSION = '1';
+    const POI_SEED_VERSION = '2';
     const POI_SEED_FLAG_KEY = 'winniPoisV1Seeded';
 
     // Verified buoys seed (Tyler Hudson, 2026-07-08; 41 added 2026-07-09 = 480 total).
@@ -1859,6 +1859,18 @@
         name: 'Sunset Lodges (Tuftonboro)',
         note: 'Tuftonboro. hotel directory (2016).',
         source: 'Lake Winnipesaukee hotel directory (2016): "Sunset Lodges; Tuftonboro"' },
+
+      // ---- West Alton (Smalls Cove Sandbar, ~43.547 -71.293) ----
+      // The Dive is a floating barge restaurant/bar that anchors at Smalls Cove
+      // Sandbar. NOT in OSM, NOT on the 1995-1996 cruising chart, NOT in NHDES —
+      // coords are a best-estimate derived from the West Alton shoreline
+      // (anchor position shifts with the barge, so verify visually before
+      // transit). Source = The Dive's own site + Facebook. Treat as
+      // "exists in this area; not authoritative for navigation."
+      { cat: 'restaurant', lat: 43.5470, lng: -71.2930,
+        name: 'The Dive',
+        note: 'Floating bar & restaurant at Smalls Cove Sandbar, West Alton. Seasonal (typically May–Oct) — check @thedivenh on Facebook for daily weather updates. Boat-up only — coordinates approximate, anchor moves.',
+        source: 'thedivenh.com: "the coolest floating bar & restaurant on Lake Winnipesaukee… at local hot spots and sand bars on the lake"; Facebook page (1654415054595652): "anchored at the Smalls Cove Sandbar"' },
 
       // ---- Moultonborough (Long Island bridge area, 43.662645, -71.349061) ----
       { cat: 'hotel', lat: 43.662645, lng: -71.349061,
