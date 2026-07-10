@@ -1,7 +1,7 @@
 {
   "version": 1,
   "format": "winni-shipped-routes-v1",
-  "updated": "2026-07-10T02:33:00Z",
+  "updated": "2026-07-10T02:41:00Z",
   "note": "Shipped recommended routes. Shipped with the app — not editable by users. User finger-drawn routes live separately in localStorage.winniRoutes.",
   "routes": [
     {
@@ -1204,6 +1204,140 @@
       ],
       "added": "2026-07-10T02:29:38.753Z",
       "isLoop": false,
+      "pointCount": 8,
+      "source": "Recommended route — captain-drawn. Verify on an authoritative cruising chart before transit; not a navigation system."
+    },
+    {
+      "id": "r17836510681117v5xg",
+      "section": "11",
+      "label": "Along Long Island (east shore channel)",
+      "short_label": "Long Island east",
+      "points": [
+        {
+          "lat": 43.6458580845028,
+          "lng": -71.31920814514162
+        },
+        {
+          "lat": 43.64703813963579,
+          "lng": -71.32139682769777
+        },
+        {
+          "lat": 43.64846659641168,
+          "lng": -71.32332801818849
+        },
+        {
+          "lat": 43.65104394334362,
+          "lng": -71.32577419281007
+        },
+        {
+          "lat": 43.66219047139682,
+          "lng": -71.34178161621095
+        },
+        {
+          "lat": 43.66243883842613,
+          "lng": -71.34311199188234
+        },
+        {
+          "lat": 43.662842432657314,
+          "lng": -71.34530067443849
+        },
+        {
+          "lat": 43.66343229626843,
+          "lng": -71.3459873199463
+        },
+        {
+          "lat": 43.665326029741365,
+          "lng": -71.34864807128908
+        },
+        {
+          "lat": 43.66641257115568,
+          "lng": -71.35036468505861
+        },
+        {
+          "lat": 43.66647465864248,
+          "lng": -71.35109424591066
+        },
+        {
+          "lat": 43.66631943980507,
+          "lng": -71.35178089141847
+        },
+        {
+          "lat": 43.66613317667041,
+          "lng": -71.35263919830324
+        },
+        {
+          "lat": 43.66520185232747,
+          "lng": -71.35924816131593
+        },
+        {
+          "lat": 43.664425737670804,
+          "lng": -71.36487007141115
+        },
+        {
+          "lat": 43.66333916029408,
+          "lng": -71.37319564819337
+        },
+        {
+          "lat": 43.66315288791194,
+          "lng": -71.38027667999269
+        },
+        {
+          "lat": 43.663277069564266,
+          "lng": -71.3895893096924
+        },
+        {
+          "lat": 43.663960064060404,
+          "lng": -71.3968849182129
+        },
+        {
+          "lat": 43.66461200610351,
+          "lng": -71.40409469604494
+        }
+      ],
+      "added": "2026-07-10T02:37:48.111Z",
+      "pointCount": 20,
+      "source": "Recommended route — captain-drawn. Verify on an authoritative cruising chart before transit; not a navigation system."
+    },
+    {
+      "id": "r1783651149159kc034",
+      "section": "12",
+      "label": "Along Long Island (south approach)",
+      "short_label": "Long Island south",
+      "points": [
+        {
+          "lat": 43.66585378088469,
+          "lng": -71.35418415069581
+        },
+        {
+          "lat": 43.662966614951806,
+          "lng": -71.35774612426759
+        },
+        {
+          "lat": 43.65973779181093,
+          "lng": -71.35967731475831
+        },
+        {
+          "lat": 43.65495633091365,
+          "lng": -71.36130809783937
+        },
+        {
+          "lat": 43.6471313008958,
+          "lng": -71.36203765869142
+        },
+        {
+          "lat": 43.64284573339101,
+          "lng": -71.36208057403566
+        },
+        {
+          "lat": 43.6381250443368,
+          "lng": -71.35911941528322
+        },
+        {
+          "lat": 43.62840298346278,
+          "lng": -71.34847640991212
+        }
+      ],
+      "added": "2026-07-10T02:39:09.159Z",
       "pointCount": 8,
       "source": "Recommended route — captain-drawn. Verify on an authoritative cruising chart before transit; not a navigation system."
     }
