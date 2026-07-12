@@ -1740,7 +1740,7 @@
       historical: { label: 'Historic site', icon: '🏛', cls: 'historical' },
     };
 
-    const POI_SEED_VERSION = '5';
+    const POI_SEED_VERSION = '6';
     const POI_SEED_FLAG_KEY = 'winniPoisV1Seeded';
 
     // Verified buoys seed (Tyler Hudson, 2026-07-08; 41 added 2026-07-09 = 480 total).
@@ -1997,18 +1997,45 @@
     function seedPoisIfNeeded() {
       // One-shot seed: if a previous version never seeded this user, copy
       // POI_SEED into storedPois and persist. Idempotent: re-runs on every
-      // load but no-ops once the flag is set.
+      // load but no-ops once the flag is set. Bumping POI_SEED_VERSION also
+      // re-runs the merge step so corrections (e.g. coord fixes like
+      // The Dive v3 → v4) propagate to devices with an older seeded copy.
       if (localStorage.getItem(POI_SEED_FLAG_KEY) === POI_SEED_VERSION) return;
       POI_SEED.forEach(p => {
-        // Skip if a user already added an identical entry (avoid duplicates
-        // if they re-import this version's storage on a second device).
-        const dupe = storedPois.some(x =>
+        // First: if a previous version of THIS exact entry is already stored
+        // (same name + same category, regardless of coords), REPLACE the
+        // existing one in place so canonical coord/note/source wins.
+        // This is the "seeded entries should always reflect POI_SEED" rule —
+        // the previous strict-coord dedup left stale entries behind when we
+        // corrected coordinate errors.
+        const existingIdx = storedPois.findIndex(x =>
+          x.cat === p.cat && x.name === p.name
+        );
+        if (existingIdx !== -1) {
+          const old = storedPois[existingIdx];
+          storedPois[existingIdx] = {
+            // preserve the original id and added date so user delete links
+            // and the seeded note in popups stay stable
+            ...old,
+            cat: p.cat,
+            lat: p.lat,
+            lng: p.lng,
+            name: p.name,
+            note: p.note || '',
+            source: p.source || '',
+            seeded: true,
+          };
+          return;
+        }
+        // Second: also dedup-by-exact-coords in case the same device
+        // imported an older snapshot that carried this exact (lat, lng).
+        const exactDupe = storedPois.some(x =>
           x.cat === p.cat &&
           x.name === p.name &&
           Math.abs((x.lat || 0) - p.lat) < 0.0001 &&
           Math.abs((x.lng || 0) - p.lng) < 0.0001
         );
-        if (!dupe) {
+        if (!exactDupe) {
           storedPois.push({
             id: 'ps' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
             cat: p.cat,
