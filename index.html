@@ -375,6 +375,45 @@
       50%      { opacity: 0.45; transform: scale(0.75); }
     }
 
+    /* Swipe-to-delete row (Trips modal list) */
+    .swipe-row {
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid #eee;
+      touch-action: pan-y;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .swipe-row-content {
+      position: relative;
+      z-index: 1;
+      background: #fff;
+      padding: 8px 0;
+      transition: transform 0.18s ease;
+      will-change: transform;
+    }
+    .swipe-row-bg {
+      position: absolute;
+      inset: 0;
+      background: #c0392b;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    .swipe-row.dragging .swipe-row-content { transition: none; }
+    .swipe-row.committed .swipe-row-content {
+      transform: translateX(-110%) !important;
+      transition: transform 0.2s ease;
+    }
+    .swipe-row.committed .swipe-row-bg { opacity: 1; transition: opacity 0.2s ease; }
+
     /* Toast (bottom-center confirmation) */
     #toast {
       position: fixed;
@@ -1547,6 +1586,7 @@
     let currentTripLine = null;    // live polyline
     let currentTripStartMarker = null;
     let currentTripEndMarker = null;
+    let _renameOnSaved = null;      // optional callback after a rename commits
     const TRIP_MIN_INTERVAL_MS = 3000;   // min time between recorded points
     const TRIP_MIN_MOVE_M = 5;           // min meters moved to count a new point
 
@@ -3571,6 +3611,7 @@ ${trkpts}
         `Distance: ${dist.toFixed(2)} km &middot; Duration: ${dur.toFixed(1)} min<br>` +
         `Max speed: ${maxSp.toFixed(1)} kn &middot; ${trip.points.length} pts<br>` +
         `<a href="#" onclick="exportTripGPX('${trip.id}'); return false;">Export GPX</a> ` +
+        `&middot; <a href="#" onclick="renameTripFromPopup('${trip.id}'); return false;">Rename</a> ` +
         `&middot; <a href="#" onclick="deleteTrip('${trip.id}'); return false;">Delete</a>`
       );
       line.addTo(layers.trips);
@@ -3723,13 +3764,113 @@ ${trkpts}
       if (_toastTimer) { clearTimeout(_toastTimer); _toastTimer = null; }
     }
 
-    window.deleteTrip = function(id) {
+    window.deleteTrip = function(id, opts) {
       const idx = storedTrips.findIndex(t => t.id === id);
       if (idx === -1) return;
-      storedTrips.splice(idx, 1);
+      const removed = storedTrips.splice(idx, 1)[0];
       saveTrips();
       rebuildTripLayer();
       map.closePopup();
+      // Default: silent delete (used by inline map popup and modal Delete button).
+      // With { undo: true }: soft-delete + 8s toast with Undo link that restores the trip.
+      if (opts && opts.undo) {
+        showToast(`Trip “${removed.name}” deleted.`, {
+          label: 'Undo',
+          onClick: () => {
+            // Restore at original index if possible, else append
+            const exists = storedTrips.findIndex(t => t.id === removed.id);
+            if (exists !== -1) return;
+            storedTrips.splice(Math.min(idx, storedTrips.length), 0, removed);
+            saveTrips();
+            rebuildTripLayer();
+            showToast('Trip restored.', null);
+          },
+        });
+      }
+    };
+
+    // Rename triggered from the on-map popup (not from the Trips modal,
+    // which uses its own prompt flow). Closes the popup first, then opens
+    // a small modal with the current name pre-filled and the name input
+    // auto-focused. This avoids native window.prompt() blocking on iOS.
+    window.renameTripFromPopup = function(id, onSaved) {
+      const trip = storedTrips.find(t => t.id === id);
+      if (!trip) return;
+      map.closePopup();
+      // Stash the callback for commitRename to call after a successful save
+      _renameOnSaved = typeof onSaved === 'function' ? onSaved : null;
+      const modal = document.getElementById('modal');
+      const body = document.getElementById('modalBody');
+      const actions = document.getElementById('modalActions');
+      const title = document.getElementById('modalTitle');
+      title.textContent = 'Rename trip';
+      body.innerHTML = `
+        <label>New name</label>
+        <input type="text" id="renameTripInput" value="${trip.name.replace(/"/g, '&quot;')}" />
+      `;
+      actions.innerHTML = `
+        <button class="btn btn-secondary" onclick="cancelModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="commitRename('${trip.id}')">Save</button>
+      `;
+      modal.classList.add('show');
+      setTimeout(() => {
+        const el = document.getElementById('renameTripInput');
+        if (el) { el.focus(); el.select(); }
+      }, 100);
+    };
+
+    window.commitRename = function(id) {
+      const trip = storedTrips.find(t => t.id === id);
+      if (!trip) return;
+      const input = document.getElementById('renameTripInput');
+      const newName = input ? input.value.trim() : '';
+      let changed = false;
+      if (newName && newName !== trip.name) {
+        trip.name = newName;
+        saveTrips();
+        rebuildTripLayer();
+        showToast(`✓ Renamed to “${newName}”`, null);
+        changed = true;
+      }
+      document.getElementById('modal').classList.remove('show');
+      const cb = _renameOnSaved;
+      _renameOnSaved = null;
+      if (changed && cb) { try { cb(); } catch (e) { console.warn(e); } }
+    };
+
+    // CSV export of all trips — one row per point with trip metadata columns.
+    // Compatible with Excel, Google Sheets, and most GIS tools.
+    window.exportAllTripsCSV = function() {
+      if (storedTrips.length === 0) return;
+      const esc = v => {
+        const s = String(v == null ? '' : v);
+        return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const header = ['trip_name','trip_started','point_time','lat','lng','speed_kn','heading_deg','point_index'];
+      const rows = [header.join(',')];
+      for (const t of storedTrips) {
+        t.points.forEach((p, i) => {
+          rows.push([
+            esc(t.name),
+            esc(t.started),
+            esc(p.t),
+            p.lat.toFixed(6),
+            p.lng.toFixed(6),
+            p.speedKn != null ? p.speedKn.toFixed(2) : '',
+            p.headingDeg != null ? p.headingDeg.toFixed(1) : '',
+            i,
+          ].join(','));
+        });
+      }
+      // Excel wants a BOM for UTF-8 to render non-ASCII names correctly
+      const blob = new Blob(['\ufeff' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `winni-trips-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`✓ Exported ${storedTrips.length} trip${storedTrips.length===1?'':'s'} as CSV`, null);
     };
 
     function tripsToGPX(trip) {
@@ -4242,17 +4383,20 @@ ${tracks}
             const dur = tripDurationMin(t);
             const mx = tripMaxSpeedKn(t);
             return `
-              <div style="border-bottom:1px solid #eee; padding: 8px 0;">
-                <strong>${escapeHtml(t.name)}</strong>
-                <div style="font-size:12px;color:#555;">
-                  ${new Date(t.started).toLocaleString()}<br>
-                  ${d.toFixed(2)} km &middot; ${dur.toFixed(1)} min &middot; max ${mx.toFixed(1)} kn &middot; ${t.points.length} pts
-                </div>
-                <div style="margin-top: 6px;">
-                  <button class="btn btn-secondary" style="padding:4px 8px;font-size:12px;" onclick="viewTripOnMap('${t.id}')">View</button>
-                  <button class="btn btn-secondary" style="padding:4px 8px;font-size:12px;" onclick="exportTripGPX('${t.id}')">GPX</button>
-                  <button class="btn btn-secondary" style="padding:4px 8px;font-size:12px;" onclick="renameTrip('${t.id}')">Rename</button>
-                  <button class="btn btn-secondary" style="padding:4px 8px;font-size:12px;color:#c0392b;" onclick="deleteTrip('${t.id}'); showTripsModal();">Delete</button>
+              <div class="swipe-row" data-trip-id="${t.id}">
+                <div class="swipe-row-bg">RELEASE TO DELETE</div>
+                <div class="swipe-row-content">
+                  <strong>${escapeHtml(t.name)}</strong>
+                  <div style="font-size:12px;color:#555;">
+                    ${new Date(t.started).toLocaleString()}<br>
+                    ${d.toFixed(2)} km &middot; ${dur.toFixed(1)} min &middot; max ${mx.toFixed(1)} kn &middot; ${t.points.length} pts
+                  </div>
+                  <div style="margin-top: 6px;">
+                    <button class="btn btn-secondary" style="padding:4px 8px;font-size:12px;" onclick="viewTripOnMap('${t.id}')">View</button>
+                    <button class="btn btn-secondary" style="padding:4px 8px;font-size:12px;" onclick="exportTripGPX('${t.id}')">GPX</button>
+                    <button class="btn btn-secondary" style="padding:4px 8px;font-size:12px;" onclick="renameTrip('${t.id}')">Rename</button>
+                    <button class="btn btn-secondary" style="padding:4px 8px;font-size:12px;color:#c0392b;" onclick="deleteTrip('${t.id}', { undo: true }); showTripsModal();">Delete</button>
+                  </div>
                 </div>
               </div>
             `;
@@ -4263,18 +4407,90 @@ ${tracks}
             <strong>${totalKm.toFixed(2)}</strong> km total &middot;
             <strong>${totalMin.toFixed(0)}</strong> min total
           </p>
-          <div style="max-height: 50vh; overflow-y: auto;">${rows}</div>
+          <p style="font-size:11px;color:#888;margin:0 0 8px;">Swipe a row left to delete.</p>
+          <div id="tripsList" style="max-height: 50vh; overflow-y: auto;">${rows}</div>
         `;
         actions.innerHTML = `
           <button class="btn btn-secondary" onclick="cancelModal()">Close</button>
-          ${storedTrips.length > 0 ? `<button class="btn btn-primary" onclick="exportAllTripsGPX()">Export all (GPX)</button>` : ''}
+          ${storedTrips.length > 0 ? `
+            <button class="btn btn-secondary" onclick="exportAllTripsCSV()">Export CSV</button>
+            <button class="btn btn-primary" onclick="exportAllTripsGPX()">Export GPX</button>
+          ` : ''}
         `;
+        // Wire up swipe-to-delete on the freshly-rendered rows
+        wireSwipeRows();
+        modal.classList.add('show');
       }
-      modal.classList.add('show');
     }
 
+    // Swipe-to-delete for trip rows in the Trips modal.
+    // Uses Pointer Events so it works for mouse, touch, and stylus on every device.
+    // Threshold: 30% of row width or 80px (whichever is smaller) commits the delete.
+    // Right swipe cancels. Vertical scroll is preserved.
+    function wireSwipeRows() {
+      const rows = document.querySelectorAll('.swipe-row');
+      rows.forEach(row => {
+        const content = row.querySelector('.swipe-row-content');
+        if (!content) return;
+        let startX = 0, startY = 0, currentX = 0, dragging = false, lockedAxis = null;
+        const threshold = () => Math.min(row.offsetWidth * 0.3, 80);
+
+        const onDown = (e) => {
+          // Ignore if user is interacting with a button/link inside the row
+          if (e.target.closest('button, a, input, label')) return;
+          dragging = true;
+          lockedAxis = null;
+          startX = e.clientX;
+          startY = e.clientY;
+          currentX = 0;
+          row.classList.add('dragging');
+          try { row.setPointerCapture(e.pointerId); } catch (_) {}
+        };
+
+        const onMove = (e) => {
+          if (!dragging) return;
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          if (lockedAxis === null) {
+            if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
+              lockedAxis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+            }
+          }
+          if (lockedAxis !== 'h') return;
+          // Only allow left swipe (negative dx). Right swipe snaps back to 0.
+          currentX = dx < 0 ? dx : 0;
+          content.style.transform = `translateX(${currentX}px)`;
+          const bg = row.querySelector('.swipe-row-bg');
+          if (bg) bg.style.opacity = Math.min(1, Math.abs(currentX) / threshold());
+        };
+
+        const onUp = () => {
+          if (!dragging) return;
+          dragging = false;
+          row.classList.remove('dragging');
+          const t = threshold();
+          if (Math.abs(currentX) >= t) {
+            row.classList.add('committed');
+            const tripId = row.dataset.tripId;
+            setTimeout(() => {
+              deleteTrip(tripId, { undo: true });
+              showTripsModal();
+            }, 220);
+          } else {
+            content.style.transform = '';
+            const bg = row.querySelector('.swipe-row-bg');
+            if (bg) bg.style.opacity = '';
+          }
+        };
+
+        row.addEventListener('pointerdown', onDown);
+        row.addEventListener('pointermove', onMove);
+        row.addEventListener('pointerup', onUp);
+        row.addEventListener('pointercancel', onUp);
+      });
+    }
     function escapeHtml(s) {
-      return String(s).replace(/[<>&'"]/g, c => ({
+      return String(s).replace(/[<>&'\"]/g, c => ({
         '<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'
       }[c]));
     }
@@ -4290,15 +4506,10 @@ ${tracks}
     };
 
     window.renameTrip = function(id) {
-      const trip = storedTrips.find(t => t.id === id);
-      if (!trip) return;
-      const newName = prompt('New name for trip:', trip.name);
-      if (newName != null && newName.trim()) {
-        trip.name = newName.trim();
-        saveTrips();
-        rebuildTripLayer();
-        showTripsModal();
-      }
+      // Reuse the shared modal flow but reopen the Trips modal afterwards
+      // so the user sees the updated name in the list. This avoids native
+      // window.prompt() which blocks on iOS Safari.
+      renameTripFromPopup(id, () => showTripsModal());
     };
 
     function wireUI() {
