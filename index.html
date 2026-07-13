@@ -461,6 +461,7 @@
     .poi-marker.historical { background: #b9770e; }
     .poi-marker.dive       { background: #0e6655; }
     .poi-marker.sandbar    { background: #c19a6b; }
+    .poi-marker.beach      { background: #3498db; }
     .poi-source {
       margin-top: 6px;
       padding: 5px 8px;
@@ -485,6 +486,7 @@
     .poi-cat-chip.historical { background: #f5e6c4; color: #7a4a02; }
     .poi-cat-chip.dive       { background: #d1f2eb; color: #0b5345; }
     .poi-cat-chip.sandbar    { background: #fdebd0; color: #6e4d1a; }
+    .poi-cat-chip.beach      { background: #d6eaf8; color: #1b4f72; }
     .safety-banner {
       display: flex;
       flex-wrap: wrap;
@@ -765,6 +767,7 @@
       <label class="layer-toggle layer-toggle-sub" style="padding-left:22px;font-size:11px;"><input type="checkbox" id="layerPoisHistorical" /> 🏛 Historic</label>
       <label class="layer-toggle layer-toggle-sub" style="padding-left:22px;font-size:11px;"><input type="checkbox" id="layerPoisDive" /> 🤿 Dive sites</label>
       <label class="layer-toggle layer-toggle-sub" style="padding-left:22px;font-size:11px;"><input type="checkbox" id="layerPoisSandbar" /> 🏖 Sandbars</label>
+      <label class="layer-toggle layer-toggle-sub" style="padding-left:22px;font-size:11px;"><input type="checkbox" id="layerPoisBeach" /> ⛱ Beaches</label>
       <label class="layer-toggle"><input type="checkbox" id="layerDepths" /> Depth soundings (yours)</label>
       <label class="layer-toggle"><input type="checkbox" id="layerBathy" /> NH Bathymetry <small>(ref.)</small></label>
     </div>
@@ -1597,9 +1600,9 @@
       // device from a 2014/2016 reference directory; user-added entries
       // persist normally.
       layers.pois = L.layerGroup();
-      // Per-category sub-groups for the 6 sub-toggles (Restaurants / Hotels /
-      // Groceries / Historic / Dive / Sandbar). Markers live ONLY in their
-      // per-cat sub-group; layers.pois (master) is a placeholder for
+      // Per-category sub-groups for the 7 sub-toggles (Restaurants / Hotels /
+      // Groceries / Historic / Dive / Sandbar / Beach). Markers live ONLY in
+      // their per-cat sub-group; layers.pois (master) is a placeholder for
       // null-safety. See addPoiToLayer() / rebuildPoiLayer() for routing.
       layers.poisRestaurants = L.layerGroup();
       layers.poisHotels      = L.layerGroup();
@@ -1607,6 +1610,7 @@
       layers.poisHistorical  = L.layerGroup();
       layers.poisDive        = L.layerGroup();
       layers.poisSandbar     = L.layerGroup();
+      layers.poisBeach       = L.layerGroup();
       seedPoisIfNeeded();
       storedPois.forEach(p => addPoiToLayer(p));
       // Off by default — first-time visitors explore layers themselves.
@@ -1758,9 +1762,10 @@
       historical: { label: 'Historic site', icon: '🏛', cls: 'historical' },
       dive:       { label: 'Submerged attraction (dive site)', icon: '🤿', cls: 'dive' },
       sandbar:    { label: 'Sandbar / boat-gathering spot', icon: '🏖', cls: 'sandbar' },
+      beach:      { label: 'Public beach / swim area', icon: '⛱', cls: 'beach' },
     };
 
-    const POI_SEED_VERSION = '9';
+    const POI_SEED_VERSION = '10';
 
     // Entries to REMOVE from storedPois on the next version bump. The seed
     // merge only adds/replaces; it can't drop a previously-seeded entry just
@@ -2148,6 +2153,99 @@
         name: 'Silver Sands Sandbar',
         note: 'Coordinates approximate (sandbars shift with lake level).',
         source: 'Tyler reference list 2026-07-13 (community-contributed sandbar / gathering spots).' },
+
+      // ---- Public Beaches ----
+      // Tyler reference list 2026-07-13. Coordinates approximate (parking
+      // lot / swim-area pin; the sand extends beyond). Only entries on
+      // Lake Winnipesaukee are seeded — entries on Lake Wentworth,
+      // Lake Winnisquam, and Lake Opechee were deferred per Tyler's
+      // directive ("drop it since it isn't on winnipesaukee") so the
+      // map stays Winni-focused. If Tyler changes his mind, bump
+      // POI_SEED_VERSION and add the entries in a bucketed section
+      // below with explicit "off the default Winni map" notes.
+
+      // (Laconia — Weirs Beach area)
+      { cat: 'beach', lat: 43.6052219490027, lng: -71.45614516911476,
+        name: 'Weirs Beach',
+        note: "The lake's most iconic beach. Boardwalk, arcades, steamer docks. Coordinates approximate (the sand extends well beyond the pin).",
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches); general Lakes Region references for boardwalk / arcades / docks.' },
+
+      { cat: 'beach', lat: 43.60532440631708, lng: -71.4564757618695,
+        name: 'Endicott Park swim area',
+        note: 'Weirs Channel. Popular with families, close to the boardwalk. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      // (Gilford)
+      { cat: 'beach', lat: 43.57473024044815, lng: -71.35747202828968,
+        name: 'Ellacoya State Park',
+        note: '600 ft of sand, RV campground, mountain views. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches); NH Division of Parks: Ellacoya State Park.' },
+
+      // (Alton Bay)
+      { cat: 'beach', lat: 43.47091388665392, lng: -71.2336754112247,
+        name: 'Alton Town Beach',
+        note: 'Small, quiet, no admission fee. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      // (Wolfeboro)
+      { cat: 'beach', lat: 43.58128070966344, lng: -71.24128993821661,
+        name: 'Carry Beach',
+        note: 'Wolfeboro, Forest Rd. Shallow and family-friendly; hosts the annual Granite Man Triathlon. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      { cat: 'beach', lat: 43.57768383693804, lng: -71.20917537304881,
+        name: 'Brewster (Albee) Beach',
+        note: 'Wolfeboro, Clark Rd. Clean, non-rocky, picnic tables; popular for birthday parties per local reviews. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      // (Tuftonboro)
+      { cat: 'beach', lat: 43.64762524788972, lng: -71.27807973078006,
+        name: '19 Mile Bay Beach',
+        note: 'Tuftonboro. Picnic area, portable toilets, quiet. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      { cat: 'beach', lat: 43.6635083187445, lng: -71.28475387587763,
+        name: '20 Mile Bay Beach',
+        note: 'Tuftonboro. Sandy bottom on the eastern side, limited parking. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      { cat: 'beach', lat: 43.687746166613344, lng: -71.31071020749077,
+        name: 'Melvin Village Town Pier Beach',
+        note: 'Tuftonboro. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      // (Meredith)
+      { cat: 'beach', lat: 43.6815034449251, lng: -71.45377728592726,
+        name: 'Leavitt Park Beach',
+        note: 'Meredith, off Rt. 25. Shady picnic area, playground, canoe/kayak launch. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      // (Moultonborough)
+      { cat: 'beach', lat: 43.663716153519516, lng: -71.34969756172848,
+        name: 'Long Island Beach',
+        note: 'Moultonborough. Requires a resident / taxpayer beach sticker. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      { cat: 'beach', lat: 43.72680984232858, lng: -71.37415685849959,
+        name: 'States Landing Beach',
+        note: 'Moultonborough, off Rt. 109. Unguarded, sticker-access. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches).' },
+
+      // (Center Harbor)
+      { cat: 'beach', lat: 43.70720251102754, lng: -71.46141979618555,
+        name: 'Center Harbor Inn private beach',
+        note: 'Guest / member access only — not a public beach — but visible from the water. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed public beaches); operator is the Center Harbor Inn (verify current access policy).' },
+
+      // (DEFERRED: 5 entries on other lakes — Lake Wentworth, Lake
+      //  Winnisquam, Lake Opechee — not seeded in v10 per Tyler's
+      //  directive. Listed here for reference if they want them back:
+      //    Wentworth State Beach  (Lake Wentworth, Wolfeboro)
+      //    Opechee Park Cove & Point (Lake Opechee, Laconia)
+      //    Bond Beach (Lake Opechee, Laconia)
+      //    Bartlett Beach (Lake Winnisquam, Laconia)
+      //    Ahern State Park Beach (Lake Winnisquam, Laconia)
+      //  Coords are off the default Winni map view.)
     ];
     // (Lake Winnisquam sandbar was seeded in v8 and retired in v9 — it's
     //  on Lake Winnisquam, not Lake Winnipesaukee, so it doesn't belong
@@ -2266,6 +2364,7 @@
         cat === 'grocery'    ? layers.poisGroceries :
         cat === 'dive'       ? layers.poisDive :
         cat === 'sandbar'    ? layers.poisSandbar :
+        cat === 'beach'      ? layers.poisBeach :
                                layers.poisRestaurants;
       marker.addTo(subGroup);
     }
@@ -2274,14 +2373,14 @@
     // When the master flips, propagate to all sub-toggles; when a sub-toggle
     // flips, check/uncheck the master based on whether any sub is on.
     function refreshPoisMasterFromSubs() {
-      const subIds = ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical', 'layerPoisDive', 'layerPoisSandbar'];
+      const subIds = ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical', 'layerPoisDive', 'layerPoisSandbar', 'layerPoisBeach'];
       const anyOn = subIds.some(id => document.getElementById(id) && document.getElementById(id).checked);
       document.getElementById('layerPois').checked = anyOn;
     }
 
     function refreshPoisSubsFromMaster() {
       const on = document.getElementById('layerPois').checked;
-      ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical', 'layerPoisDive', 'layerPoisSandbar']
+      ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical', 'layerPoisDive', 'layerPoisSandbar', 'layerPoisBeach']
         .forEach(id => { const el = document.getElementById(id); if (el) el.checked = on; });
     }
 
@@ -3050,6 +3149,7 @@
         poi.cat === 'grocery'    ? 'layerPoisGroceries' :
         poi.cat === 'dive'       ? 'layerPoisDive' :
         poi.cat === 'sandbar'    ? 'layerPoisSandbar' :
+        poi.cat === 'beach'      ? 'layerPoisBeach' :
                                    'layerPoisRestaurants';
       const subEl = document.getElementById(subId);
       if (subEl && !subEl.checked) {
@@ -4493,7 +4593,7 @@ ${tracks}
         // listeners handle their own addTo/removeLayer — we just sync state
         // and dispatch change events so the visual sync propagates.
         const on = e.target.checked;
-        ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical', 'layerPoisDive', 'layerPoisSandbar']
+        ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical', 'layerPoisDive', 'layerPoisSandbar', 'layerPoisBeach']
           .forEach(id => {
             const el = document.getElementById(id);
             if (el && el.checked !== on) {
@@ -4513,6 +4613,7 @@ ${tracks}
         ['layerPoisHistorical',  layers.poisHistorical],
         ['layerPoisDive',        layers.poisDive],
         ['layerPoisSandbar',     layers.poisSandbar],
+        ['layerPoisBeach',       layers.poisBeach],
       ];
       subGroups.forEach(([id, grp]) => {
         document.getElementById(id).addEventListener('change', e => {
