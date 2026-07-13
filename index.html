@@ -459,6 +459,7 @@
     .poi-marker.hotel     { background: #8e44ad; }
     .poi-marker.grocery   { background: #27ae60; }
     .poi-marker.historical { background: #b9770e; }
+    .poi-marker.dive       { background: #0e6655; }
     .poi-source {
       margin-top: 6px;
       padding: 5px 8px;
@@ -481,6 +482,7 @@
     .poi-cat-chip.hotel     { background: #e8daef; color: #6c3483; }
     .poi-cat-chip.grocery   { background: #d5f5e3; color: #1e8449; }
     .poi-cat-chip.historical { background: #f5e6c4; color: #7a4a02; }
+    .poi-cat-chip.dive       { background: #d1f2eb; color: #0b5345; }
     .safety-banner {
       display: flex;
       flex-wrap: wrap;
@@ -759,6 +761,7 @@
       <label class="layer-toggle layer-toggle-sub" style="padding-left:22px;font-size:11px;"><input type="checkbox" id="layerPoisHotels" /> 🏨 Hotels</label>
       <label class="layer-toggle layer-toggle-sub" style="padding-left:22px;font-size:11px;"><input type="checkbox" id="layerPoisGroceries" /> 🛒 Groceries</label>
       <label class="layer-toggle layer-toggle-sub" style="padding-left:22px;font-size:11px;"><input type="checkbox" id="layerPoisHistorical" /> 🏛 Historic</label>
+      <label class="layer-toggle layer-toggle-sub" style="padding-left:22px;font-size:11px;"><input type="checkbox" id="layerPoisDive" /> 🤿 Dive sites</label>
       <label class="layer-toggle"><input type="checkbox" id="layerDepths" /> Depth soundings (yours)</label>
       <label class="layer-toggle"><input type="checkbox" id="layerBathy" /> NH Bathymetry <small>(ref.)</small></label>
     </div>
@@ -1591,13 +1594,15 @@
       // device from a 2014/2016 reference directory; user-added entries
       // persist normally.
       layers.pois = L.layerGroup();
-      // Per-category sub-groups for the 4 sub-toggles (Restaurants / Hotels /
-      // Groceries / Historic). Markers are added to the sub-group for their
-      // cat and to layers.pois for the master toggle. See rebuildPoiLayer().
+      // Per-category sub-groups for the 5 sub-toggles (Restaurants / Hotels /
+      // Groceries / Historic / Dive). Markers live ONLY in their per-cat
+      // sub-group; layers.pois (master) is a placeholder for null-safety.
+      // See addPoiToLayer() / rebuildPoiLayer() for the routing rules.
       layers.poisRestaurants = L.layerGroup();
       layers.poisHotels      = L.layerGroup();
       layers.poisGroceries   = L.layerGroup();
       layers.poisHistorical  = L.layerGroup();
+      layers.poisDive        = L.layerGroup();
       seedPoisIfNeeded();
       storedPois.forEach(p => addPoiToLayer(p));
       // Off by default — first-time visitors explore layers themselves.
@@ -1747,9 +1752,10 @@
       hotel:      { label: 'Hotel / motel', icon: '🏨', cls: 'hotel' },
       grocery:    { label: 'Grocery / store', icon: '🛒', cls: 'grocery' },
       historical: { label: 'Historic site', icon: '🏛', cls: 'historical' },
+      dive:       { label: 'Submerged attraction (dive site)', icon: '🤿', cls: 'dive' },
     };
 
-    const POI_SEED_VERSION = '6';
+    const POI_SEED_VERSION = '7';
     const POI_SEED_FLAG_KEY = 'winniPoisV1Seeded';
 
     // Verified buoys seed (Tyler Hudson, 2026-07-08; 41 added 2026-07-09 = 480 total).
@@ -2001,6 +2007,88 @@
         name: 'Old Acquadocton village site (The Weirs)',
         note: 'Former fishing village of the Winnipesaukee band of the Pennacook, named for the stone fish weirs still visible when the channel was dredged. Acquadocton was the indigenous settlement at the natural outlet narrows.',
         source: 'Tyler reference list 2026-07-12; New Hampshire Historical Society / Indigenous NH: Winnipesaukee Pennacook band, Acquadocton village; stone fish weirs dredged during 19th-century channel work.' },
+
+      // ---- Submerged Attractions (Dive Sites) ----
+      // Tyler reference list 2026-07-13. Community-contributed; coords are
+      // approximate and not from an authoritative survey. Per rule #13 the
+      // dive category inherits the approximate-coords exception because
+      // dive sites are inherently off-the-beaten-path (not at launches /
+      // marinas) and a boater diving one has already opted into a non-nav
+      // activity. Every entry says "Coordinates approximate" in the note.
+
+      // (Smith / Glendale Cove — west of Governor's Island)
+      { cat: 'dive', lat: 43.58317276456966, lng: -71.3931067779099,
+        name: 'Lady of the Lake wreck',
+        note: '1848-built side-wheel steamer, scuttled 1895; rests upright in 30 ft of water — the most popular dive site on the lake. Coordinates approximate — verify on a local dive-shop chart before diving.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites); vessel dates from general Lake Winnipesaukee maritime history references.' },
+
+      // (Doe Point — near Weirs Beach)
+      { cat: 'dive', lat: 43.612040258642764, lng: -71.45739446559472,
+        name: 'Steam barge wreck, Doe Point',
+        note: 'Turn-of-the-century pile-driving barge in ~45-50 ft of water; crane and boiler still attached. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
+
+      // (NW Diamond Island — Empty Pockets and the Dory rest together, tied
+      //  by a tow line. They share a pin on purpose so the boater can see
+      //  the pair as one site on the map.)
+      { cat: 'dive', lat: 43.576943053605795, lng: -71.32644917850057,
+        name: '"Empty Pockets" cabin cruiser',
+        note: '28-ft twin-engine cruiser, sank late 1970s, in ~55 ft of water. The Diamond Island Dory (see separate marker) rests nearby tied to this wreck by tow line. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
+
+      { cat: 'dive', lat: 43.576943053605795, lng: -71.32644917850057,
+        name: 'Diamond Island Dory',
+        note: '19-ft boat in ~35 ft of water, reportedly still tied by tow line to the Empty Pockets cruiser. Coordinates approximate (shared pin with Empty Pockets — they rest together).',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
+
+      { cat: 'dive', lat: 43.578388122879204, lng: -71.33026519921074,
+        name: 'Navy laser-test rail track, Diamond Island',
+        note: '1950s SCRIPTS program track for measuring laser transmission through water — an odd piece of Cold War history in ~25 ft of water. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites); SCRIPTS / Navy underwater laser research history.' },
+
+      // (Loon Cove — Alton Bay)
+      { cat: 'dive', lat: 43.49829806959062, lng: -71.2553871459835,
+        name: 'Echo Junior race boat wreck, Loon Cove',
+        note: '1940s 28-ft racer with a 12-cylinder Allison aircraft engine; burned to the waterline on its maiden voyage. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
+
+      // (Ship & Moose Islands — Laker Wrecks: three wrecks clustered between
+      //  10-37 ft in 80-100+ ft of surrounding water. The Laker Craft and
+      //  Runabout have explicit DMS coords; the Third Wreck sits nearby
+      //  without a specific pin, so we use a midpoint between the two and
+      //  flag it in the note.)
+      { cat: 'dive', lat: 43.5510, lng: -71.2572,
+        name: 'The Laker Craft',
+        note: 'Old wooden boat at ~30 ft depth (GPS N 43° 33.060 W 71° 15.430, converted to decimal). Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
+
+      { cat: 'dive', lat: 43.5528, lng: -71.2571,
+        name: 'The Runabout (Ship & Moose Islands)',
+        note: '18-ft fiberglass stripped motorboat at ~85 ft depth (GPS N 43° 33.169 W 71° 15.424, converted to decimal). Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
+
+      { cat: 'dive', lat: 43.5519, lng: -71.2572,
+        name: 'The Third Wreck (Ship & Moose Islands)',
+        note: '1950s 25-ft closed-bow cruiser; lies near The Laker Craft and The Runabout (between the two pins). No separate ref point given in source. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
+
+      // (Parker Island — glacially carved underwater terrain)
+      { cat: 'dive', lat: 43.57086691454624, lng: -71.25857715816382,
+        name: 'Parker Island rock formations',
+        note: 'Glacially carved tunnels and quartz-veined ledges forming an underwater "staircase" from 15 to 60 ft. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
+
+      // (Rum Point — West Alton)
+      { cat: 'dive', lat: 43.54231658895024, lng: -71.27258836765874,
+        name: 'Rum Point (West Alton) rock walls',
+        note: 'Dramatic underwater rock formations and a 1965 sunken logging truck; a Prohibition-era rum shipment is rumored lost nearby. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
+
+      // (Goodhue & Hawkins Navy Yard — debris field)
+      { cat: 'dive', lat: 43.574672503771374, lng: -71.22382480518394,
+        name: 'Goodhue & Hawkins Navy Yard debris field',
+        note: 'Decades of sunken hulls, barges, and engines from the old boatyard operations. Coordinates approximate.',
+        source: 'Tyler reference list 2026-07-13 (community-contributed dive sites).' },
     ];
 
     function seedPoisIfNeeded() {
@@ -2107,6 +2195,7 @@
         cat === 'historical' ? layers.poisHistorical :
         cat === 'hotel'      ? layers.poisHotels :
         cat === 'grocery'    ? layers.poisGroceries :
+        cat === 'dive'       ? layers.poisDive :
                                layers.poisRestaurants;
       marker.addTo(subGroup);
     }
@@ -2115,14 +2204,14 @@
     // When the master flips, propagate to all sub-toggles; when a sub-toggle
     // flips, check/uncheck the master based on whether any sub is on.
     function refreshPoisMasterFromSubs() {
-      const subIds = ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical'];
+      const subIds = ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical', 'layerPoisDive'];
       const anyOn = subIds.some(id => document.getElementById(id) && document.getElementById(id).checked);
       document.getElementById('layerPois').checked = anyOn;
     }
 
     function refreshPoisSubsFromMaster() {
       const on = document.getElementById('layerPois').checked;
-      ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical']
+      ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical', 'layerPoisDive']
         .forEach(id => { const el = document.getElementById(id); if (el) el.checked = on; });
     }
 
@@ -2889,6 +2978,7 @@
         poi.cat === 'historical' ? 'layerPoisHistorical' :
         poi.cat === 'hotel'      ? 'layerPoisHotels' :
         poi.cat === 'grocery'    ? 'layerPoisGroceries' :
+        poi.cat === 'dive'       ? 'layerPoisDive' :
                                    'layerPoisRestaurants';
       const subEl = document.getElementById(subId);
       if (subEl && !subEl.checked) {
@@ -4332,7 +4422,7 @@ ${tracks}
         // listeners handle their own addTo/removeLayer — we just sync state
         // and dispatch change events so the visual sync propagates.
         const on = e.target.checked;
-        ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical']
+        ['layerPoisRestaurants', 'layerPoisHotels', 'layerPoisGroceries', 'layerPoisHistorical', 'layerPoisDive']
           .forEach(id => {
             const el = document.getElementById(id);
             if (el && el.checked !== on) {
@@ -4350,6 +4440,7 @@ ${tracks}
         ['layerPoisHotels',      layers.poisHotels],
         ['layerPoisGroceries',   layers.poisGroceries],
         ['layerPoisHistorical',  layers.poisHistorical],
+        ['layerPoisDive',        layers.poisDive],
       ];
       subGroups.forEach(([id, grp]) => {
         document.getElementById(id).addEventListener('change', e => {
