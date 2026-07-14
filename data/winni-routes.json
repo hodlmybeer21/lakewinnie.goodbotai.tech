@@ -1,7 +1,7 @@
 {
   "version": 1,
   "format": "winni-shipped-routes-v1",
-  "updated": "2026-07-14T10:55:37Z",
+  "updated": "2026-07-14T22:20:00Z",
   "note": "Shipped recommended routes. Shipped with the app — not editable by users. User finger-drawn routes live separately in localStorage.winniRoutes.",
   "routes": [
     {
@@ -1812,7 +1812,66 @@
       "added": "2026-07-14T10:48:01.537Z",
       "pointCount": 39,
       "source": "Recommended route — captain-drawn. Verify on an authoritative cruising chart before transit; not a navigation system."
+    },
+    {
+      "id": "r1784067552159ssjec",
+      "section": "17",
+      "label": "Into Jockey Cove (south lake channel)",
+      "short_label": "Jockey Cove",
+      "points": [
+        {
+          "lat": 43.56901149497529,
+          "lng": -71.24075889587404
+        },
+        {
+          "lat": 43.569633373501176,
+          "lng": -71.23921394348146
+        },
+        {
+          "lat": 43.57100148365675,
+          "lng": -71.23809814453126
+        },
+        {
+          "lat": 43.57317795849273,
+          "lng": -71.23732566833498
+        },
+        {
+          "lat": 43.57504344574866,
+          "lng": -71.23749732971193
+        },
+        {
+          "lat": 43.57815246275741,
+          "lng": -71.23852729797365
+        },
+        {
+          "lat": 43.57591398669178,
+          "lng": -71.23638153076173
+        },
+        {
+          "lat": 43.57423507503284,
+          "lng": -71.23500823974611
+        },
+        {
+          "lat": 43.57236956273548,
+          "lng": -71.2343215942383
+        },
+        {
+          "lat": 43.57062836578722,
+          "lng": -71.23337745666505
+        },
+        {
+          "lat": 43.5693846228613,
+          "lng": -71.23166084289552
+        },
+        {
+          "lat": 43.568451798812205,
+          "lng": -71.22960090637208
+        }
+      ],
+      "added": "2026-07-14T22:19:12.159Z",
+      "pointCount": 12,
+      "source": "Recommended route — captain-drawn. Verify on an authoritative cruising chart before transit; not a navigation system."
     }
   ],
-  "routes_count": 15
+  "routes_count": 17
 }
