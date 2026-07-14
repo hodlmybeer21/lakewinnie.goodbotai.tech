@@ -1871,7 +1871,90 @@
       "added": "2026-07-14T22:19:12.159Z",
       "pointCount": 12,
       "source": "Recommended route — captain-drawn. Verify on an authoritative cruising chart before transit; not a navigation system."
+    },
+    {
+      "id": "r1784067392795a206h",
+      "section": "18",
+      "label": "Winter Harbor to Long Island north (south-east channel)",
+      "short_label": "Winter Harbor → LI N",
+      "points": [
+        {
+          "lat": 43.58872191986938,
+          "lng": -71.28341674804689
+        },
+        {
+          "lat": 43.59040042758519,
+          "lng": -71.2815284729004
+        },
+        {
+          "lat": 43.59151940672377,
+          "lng": -71.27835273742677
+        },
+        {
+          "lat": 43.59232754538541,
+          "lng": -71.2745761871338
+        },
+        {
+          "lat": 43.59276269247771,
+          "lng": -71.27079963684083
+        },
+        {
+          "lat": 43.592887019640465,
+          "lng": -71.26461982727052
+        },
+        {
+          "lat": 43.59049367664133,
+          "lng": -71.25852584838869
+        },
+        {
+          "lat": 43.58300220875825,
+          "lng": -71.24479293823244
+        },
+        {
+          "lat": 43.5820074209137,
+          "lng": -71.24260425567628
+        },
+        {
+          "lat": 43.58300220875825,
+          "lng": -71.24481439590456
+        },
+        {
+          "lat": 43.59050921813665,
+          "lng": -71.25852584838869
+        },
+        {
+          "lat": 43.59630591596548,
+          "lng": -71.2651562690735
+        },
+        {
+          "lat": 43.598015291288455,
+          "lng": -71.2657141685486
+        },
+        {
+          "lat": 43.60286343709705,
+          "lng": -71.26569271087648
+        },
+        {
+          "lat": 43.605753491998236,
+          "lng": -71.26371860504152
+        },
+        {
+          "lat": 43.60786656254615,
+          "lng": -71.26210927963258
+        },
+        {
+          "lat": 43.610492260015306,
+          "lng": -71.26088619232179
+        },
+        {
+          "lat": 43.6159452654277,
+          "lng": -71.26998424530031
+        }
+      ],
+      "added": "2026-07-14T22:16:32.795Z",
+      "pointCount": 18,
+      "source": "Recommended route — captain-drawn. Verify on an authoritative cruising chart before transit; not a navigation system."
     }
   ],
-  "routes_count": 17
+  "routes_count": 18
 }
