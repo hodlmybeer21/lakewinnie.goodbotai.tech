@@ -1,7 +1,7 @@
 {
   "version": 1,
   "format": "winni-shipped-routes-v1",
-  "updated": "2026-07-15T00:04:00Z",
+  "updated": "2026-07-15T00:05:30Z",
   "note": "Shipped recommended routes. Shipped with the app — not editable by users. User finger-drawn routes live separately in localStorage.winniRoutes.",
   "routes": [
     {
@@ -2852,7 +2852,74 @@
       "added": "2026-07-15T00:02:58.176Z",
       "pointCount": 36,
       "source": "Recommended route — captain-drawn. Verify on an authoritative cruising chart before transit; not a navigation system."
+    },
+    {
+      "id": "r1784073887757j0ap1",
+      "section": "29",
+      "label": "Paugus Bay inner circuit (south bay loop)",
+      "short_label": "Paugus Bay 1",
+      "points": [
+        {
+          "lat": 43.57703323512646,
+          "lng": -71.45615100860597
+        },
+        {
+          "lat": 43.57507453671334,
+          "lng": -71.45632266998292
+        },
+        {
+          "lat": 43.57112585576626,
+          "lng": -71.4587688446045
+        },
+        {
+          "lat": 43.5691669652087,
+          "lng": -71.45984172821046
+        },
+        {
+          "lat": 43.56658610737352,
+          "lng": -71.46065711975099
+        },
+        {
+          "lat": 43.56496912804994,
+          "lng": -71.4610004425049
+        },
+        {
+          "lat": 43.56898040088044,
+          "lng": -71.46323204040529
+        },
+        {
+          "lat": 43.57125022761893,
+          "lng": -71.46473407745363
+        },
+        {
+          "lat": 43.574297257780835,
+          "lng": -71.46542072296144
+        },
+        {
+          "lat": 43.575416536265315,
+          "lng": -71.4648199081421
+        },
+        {
+          "lat": 43.578556623178144,
+          "lng": -71.46271705627443
+        },
+        {
+          "lat": 43.58088826494045,
+          "lng": -71.46215915679933
+        },
+        {
+          "lat": 43.58331307658865,
+          "lng": -71.46228790283205
+        },
+        {
+          "lat": 43.58536476400974,
+          "lng": -71.46318912506105
+        }
+      ],
+      "added": "2026-07-15T00:04:47.757Z",
+      "pointCount": 14,
+      "source": "Recommended route — captain-drawn. Verify on an authoritative cruising chart before transit; not a navigation system."
     }
   ],
-  "routes_count": 28
+  "routes_count": 29
 }
